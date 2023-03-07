@@ -98,3 +98,62 @@ remapJar {
     dependsOn(shadowJar)
     inputFile = shadowJar.archiveFile
 }
+
+if (file('key.properties').exists()) {
+    curseforge {
+
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
+
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "834959"
+        	releaseType = "release"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+			addGameVersion("1.19.3")
+			addGameVersion("Fabric")
+			addGameVersion("Quilt")
+			addGameVersion("Java 17")
+
+        	relations {
+            	requiredDependency 'fabric-api'  
+            	requiredDependency 'azurelib' 
+            	requiredDependency 'smartbrainlib' 
+            	optionalDependency 'modmenu'
+        	}
+        	mainArtifact(remapJar)
+
+        	afterEvaluate {
+            	uploadTask.dependsOn("remapJar")
+        	}
+    	}
+    	options {
+        	forgeGradleIntegration = false
+    	}
+    }
+}
+
+if (file('key.properties').exists()) {
+	modrinth {
+		def modrinthProp = new Properties()
+		File secretPropsFile = file("key.properties")
+		modrinthProp.load(secretPropsFile.newInputStream())
+		
+		token = modrinthProp.getProperty('modrinthKey')
+		projectId = '5mniBzZH' 
+		versionNumber = project.mod_version 
+		versionName = 'Fabric/Quilt 1.19'
+		uploadFile = remapJar 
+		changelog = rootProject.file("CHANGELOG.txt").text
+		gameVersions = ['1.19.3']
+		loaders = ['fabric','quilt']
+		dependencies { 
+        	required.project "azurelib"
+        	required.project "smartbrainlib"
+        	required.project "fabric-api"
+            optional.project "modmenu"
+   		}
+	}
+}

@@ -1,0 +1,3 @@
+v.0.0.1
+
+- This is a WIP build, AI is in heavy works for all mobs. All mobs will spawn via structures later on.

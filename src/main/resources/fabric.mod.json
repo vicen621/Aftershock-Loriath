@@ -9,8 +9,8 @@
 		"Wolverbyte"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://modrinth.com/mod/aftershock",
+		"sources": "https://github.com/AzureDoom/Aftershock"
 	},
 	"license": "CC-BY-NC-4.0",
 	"icon": "icon.png",
