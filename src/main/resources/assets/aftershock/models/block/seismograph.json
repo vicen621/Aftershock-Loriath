@@ -1,0 +1,99 @@
+{
+  "credit": "Made with Blockbench",
+  "textures": {
+    "particle": "aftershock:block/seismograph/seismograph"
+  },
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        82,
+        45
+      ],
+      "translation": [
+        0,
+        -0.25,
+        -0.75
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        82,
+        45
+      ],
+      "translation": [
+        0,
+        -0.25,
+        -0.75
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        129,
+        0
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        129,
+        0
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        -2.5,
+        0
+      ]
+    },
+    "gui": {
+      "rotation": [
+        33,
+        154,
+        0
+      ],
+      "translation": [
+        0,
+        -2.75,
+        0
+      ]
+    },
+    "head": {
+      "scale": [
+        0,
+        0,
+        0
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0.75
+      ]
+    }
+  }
+}

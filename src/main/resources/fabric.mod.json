@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "aftershock",
+	"version": "${version}",
+	"name": "Aftershock",
+	"description": "The Food Chain Just Grew Another Link.",
+	"authors": [
+		"AzureDoom",
+		"Wolverbyte"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC-BY-NC-4.0",
+	"icon": "icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"mod.azure.aftershock.common.AftershockMod"
+		],
+		"client": [
+			"mod.azure.aftershock.client.AftershockClientInit"
+		]
+	},
+	"mixins": [
+		"aftershock.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.14",
+		"minecraft": "~1.19.3",
+		"java": ">=17",
+		"fabric-api": "*",
+		"azurelib": ">=1.0.5"
+	}
+}
