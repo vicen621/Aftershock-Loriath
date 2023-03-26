@@ -3,15 +3,22 @@ package mod.azure.aftershock.common.entities;
 import java.util.List;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.aftershock.common.AftershockMod.ModMobs;
 import mod.azure.aftershock.common.config.AfterShocksConfig;
+import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
 import mod.azure.aftershock.common.helpers.AttackType;
-import mod.azure.aftershock.common.helpers.AzureVibrationListener;
 import mod.azure.azurelib.ai.pathing.AzureNavigation;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.helper.AzureVibrationListener;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
@@ -146,8 +153,40 @@ public class AmericanGraboidEntity extends BaseEntity implements SmartBrainOwner
 	}
 
 	@Override
+	public void growUp(LivingEntity entity) {
+		var world = entity.level;
+		if (!world.isClientSide()) {
+			var newEntity = growInto();
+			var newEntity1 = growInto();
+			var newEntity2 = growInto();
+			if (newEntity == null || newEntity1 == null || newEntity2 == null)
+				return;
+			newEntity.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
+			newEntity1.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
+			newEntity2.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
+			world.addFreshEntity(newEntity);
+			world.addFreshEntity(newEntity1);
+			world.addFreshEntity(newEntity2);
+			entity.remove(Entity.RemovalReason.DISCARDED);
+		}
+	}
+
+	@Override
 	public LivingEntity growInto() {
-		return null;
+		var entity = new AmericanShreikerEntity(ModMobs.AMERICAN_SHREIKER, level);
+		if (hasCustomName())
+			entity.setCustomName(this.getCustomName());
+		entity.setNewBornStatus(true);
+		entity.setGrowth(0);
+		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
+		var areaEffectCloudEntity = new AreaEffectCloud(this.level, this.getX(), this.getY() + 1, this.getZ());
+		areaEffectCloudEntity.setRadius(1.0F);
+		areaEffectCloudEntity.setDuration(20);
+		areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
+		areaEffectCloudEntity
+				.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
+		entity.level.addFreshEntity(areaEffectCloudEntity);
+		return entity;
 	}
 
 	@Override

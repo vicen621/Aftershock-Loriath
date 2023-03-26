@@ -19,8 +19,7 @@ public class AftershockMemoryTypes {
 	public static void init() {
 	}
 
-	public static final Supplier<MemoryModuleType<List<Pair<BlockPos, BlockState>>>> NEARBY_LIGHT_BLOCKS = register(
-			"nearby_light_blocks_aftershock");
+	public static final Supplier<MemoryModuleType<List<Pair<BlockPos, BlockState>>>> NEARBY_LIGHT_BLOCKS = register("nearby_light_blocks_aftershock");
 
 	public static final Supplier<MemoryModuleType<List<ItemEntity>>> FOOD_ITEMS = register("food_items_aftershock");
 

@@ -44,10 +44,9 @@ public class AftershockMod implements ModInitializer {
 	public static ModItems ITEMS;
 	public static ModMobs ModMobs;
 	public static ModBlocks ModBlocks;
-	public static final TagKey<Block> DESTRUCTIBLE_LIGHT = TagKey.create(Registries.BLOCK,
-			AftershockMod.modResource("destructible_light"));
-	public static final TagKey<Block> WEAK_BLOCKS = TagKey.create(Registries.BLOCK,
-			AftershockMod.modResource("weak_block"));
+	public static final TagKey<Block> DESTRUCTIBLE_LIGHT = TagKey.create(Registries.BLOCK, AftershockMod.modResource("destructible_light"));
+	public static final TagKey<Block> WEAK_BLOCKS = TagKey.create(Registries.BLOCK, AftershockMod.modResource("weak_block"));
+	public static final TagKey<EntityType<?>> HEAT_ENTITY = TagKey.create(Registries.ENTITY_TYPE, AftershockMod.modResource("heat_entity"));
 	public static final EntityDataSerializer<AttackType> ALIEN_ATTACK_TYPE = new EntityDataSerializer<>() {
 		@Override
 		public void write(FriendlyByteBuf packetByteBuf, AttackType AttackType) {
@@ -64,17 +63,14 @@ public class AftershockMod implements ModInitializer {
 			return AttackType;
 		}
 	};
-	public static final CreativeModeTab ITEMS_GROUP = FabricItemGroup
-			.builder(new ResourceLocation(AftershockMod.MODID, "items"))
-			.icon(() -> new ItemStack(ModItems.SEIMOGRAPH_ITEM))
-			.displayItems((enabledFeatures, entries, operatorEnabled) -> {
-				entries.accept(ModItems.GRABOID_EGG_ITEM);
-				entries.accept(ModItems.SEIMOGRAPH_ITEM);
-//				entries.accept(ModItems.DIRT_DRAGON_SPAWNEGG);
-				entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
-				entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
-				entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
-			}).build();
+	public static final CreativeModeTab ITEMS_GROUP = FabricItemGroup.builder(AftershockMod.modResource("items")).icon(() -> new ItemStack(ModItems.SEIMOGRAPH_ITEM)).displayItems((context, entries) -> {
+		entries.accept(ModItems.GRABOID_EGG_ITEM);
+		entries.accept(ModItems.SEIMOGRAPH_ITEM);
+		// entries.accept(ModItems.DIRT_DRAGON_SPAWNEGG);
+		entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
+		entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
+		entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
+	}).build();
 
 	@Override
 	public void onInitialize() {
@@ -90,77 +86,54 @@ public class AftershockMod implements ModInitializer {
 	}
 
 	public static final ResourceLocation modResource(String name) {
-		return new ResourceLocation(AftershockMod.MODID, name);
+		return AftershockMod.modResource(name);
 	}
 
 	public class ModMobs {
-		public final static EntityType<AmericanBlasterEntity> AMERICAN_BLASTER = Registry.register(
-				BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(AftershockMod.MODID, "american_blaster"),
-				FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanBlasterEntity::new)
-						.dimensions(EntityDimensions.fixed(1.3f, 1.15F)).trackRangeBlocks(90).trackedUpdateRate(1)
-						.build());
+		public final static EntityType<AmericanBlasterEntity> AMERICAN_BLASTER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_blaster"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanBlasterEntity::new).dimensions(EntityDimensions.fixed(1.3f, 1.15F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
-		public final static EntityType<AmericanShreikerEntity> AMERICAN_SHREIKER = Registry.register(
-				BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(AftershockMod.MODID, "american_shreiker"),
-				FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanShreikerEntity::new)
-						.dimensions(EntityDimensions.fixed(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1)
-						.build());
+		public final static EntityType<AmericanShreikerEntity> AMERICAN_SHREIKER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_shreiker"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanShreikerEntity::new).dimensions(EntityDimensions.fixed(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
-		public final static EntityType<AmericanGraboidEntity> AMERICAN_GRABOID = Registry.register(
-				BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(AftershockMod.MODID, "american_graboid"),
-				FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanGraboidEntity::new)
-						.dimensions(EntityDimensions.fixed(2.0f, 1.8F)).trackRangeBlocks(90).trackedUpdateRate(1)
-						.build());
-		
+		public final static EntityType<AmericanGraboidEntity> AMERICAN_GRABOID = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_graboid"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanGraboidEntity::new).dimensions(EntityDimensions.fixed(2.0f, 1.8F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
+
 //		public final static EntityType<DirtDragonEntity> DIRT_DRAGON = Registry.register(
-//				BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(AftershockMod.MODID, "dirt_dragon"),
+//				BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("dirt_dragon"),
 //				FabricEntityTypeBuilder.create(MobCategory.MONSTER, DirtDragonEntity::new)
 //						.dimensions(EntityDimensions.fixed(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1)
 //						.build());
-		
-		public static final BlockEntityType<SeismographBlockEntity> SEIMOGRAPH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
-				AftershockMod.MODID + ":seismograph",
-				FabricBlockEntityTypeBuilder.create(SeismographBlockEntity::new, ModBlocks.SEIMOGRAPH).build(null));
 
-		public static void init() {
-			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_BLASTER,
-					AmericanBlasterEntity.createMobAttributes());
-			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_SHREIKER,
-					AmericanShreikerEntity.createMobAttributes());
-//			FabricDefaultAttributeRegistry.register(ModMobs.DIRT_DRAGON,
-//					DirtDragonEntity.createMobAttributes());
-			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_GRABOID,
-					AmericanGraboidEntity.createMobAttributes());
+		public static final BlockEntityType<SeismographBlockEntity> SEIMOGRAPH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AftershockMod.MODID + ":seismograph", FabricBlockEntityTypeBuilder.create(SeismographBlockEntity::new, ModBlocks.SEIMOGRAPH).build(null));
+
+		public void init() {
+			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_BLASTER, AmericanBlasterEntity.createMobAttributes());
+			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_SHREIKER, AmericanShreikerEntity.createMobAttributes());
+//			FabricDefaultAttributeRegistry.register(ModMobs.DIRT_DRAGON, DirtDragonEntity.createMobAttributes());
+			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_GRABOID, AmericanGraboidEntity.createMobAttributes());
 		}
 	}
 
 	public class ModBlocks {
-		public static final Block GRABOID_EGG = block(new GraboidEggBlock(), "graboid_egg");
-		public static final Block SEIMOGRAPH = block(new SeismographBlock(), "seismograph");
+		public final static Block GRABOID_EGG = block(new GraboidEggBlock(), "graboid_egg");
+		public final static Block SEIMOGRAPH = block(new SeismographBlock(), "seismograph");
 
 		static <T extends Block> T block(T c, String id) {
-			Registry.register(BuiltInRegistries.BLOCK, new ResourceLocation(AftershockMod.MODID, id), c);
+			Registry.register(BuiltInRegistries.BLOCK, AftershockMod.modResource(id), c);
 			return c;
 		}
 
 	}
 
 	public class ModItems {
-		public static AzureSpawnEgg AMERICAN_BLASTER_SPAWNEGG = item(
-				new AzureSpawnEgg(ModMobs.AMERICAN_BLASTER, 0x927452, 0x213744), "american_blaster_spawnegg");
-		public static AzureSpawnEgg AMERICAN_SHREIKER_SPAWNEGG = item(
-				new AzureSpawnEgg(ModMobs.AMERICAN_SHREIKER, 0x7c5c51, 0xe7ded4), "american_shreiker_spawnegg");
-		public static AzureSpawnEgg AMERICAN_GRABOID_SPAWNEGG = item(
-				new AzureSpawnEgg(ModMobs.AMERICAN_GRABOID, 0x2d383d, 0xa2967f), "american_graboid_spawnegg");
-//		public static AzureSpawnEgg DIRT_DRAGON_SPAWNEGG = item(
-//				new AzureSpawnEgg(ModMobs.DIRT_DRAGON, 0x9e6025, 0x939393), "dirt_dragon_spawnegg");
+		public static AzureSpawnEgg AMERICAN_BLASTER_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_BLASTER, 0x927452, 0x213744), "american_blaster_spawnegg");
+		public static AzureSpawnEgg AMERICAN_SHREIKER_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_SHREIKER, 0x7c5c51, 0xe7ded4), "american_shreiker_spawnegg");
+		public static AzureSpawnEgg AMERICAN_GRABOID_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_GRABOID, 0x2d383d, 0xa2967f), "american_graboid_spawnegg");
+//		public static AzureSpawnEgg DIRT_DRAGON_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.DIRT_DRAGON, 0x9e6025, 0x939393), "dirt_dragon_spawnegg");
 
-		public static BlockItem GRABOID_EGG_ITEM = item(new BlockItem(ModBlocks.GRABOID_EGG, new Item.Properties()),
-				"graboid_egg");
+		public static BlockItem GRABOID_EGG_ITEM = item(new BlockItem(ModBlocks.GRABOID_EGG, new Item.Properties()), "graboid_egg");
 		public static SeismographBlockItem SEIMOGRAPH_ITEM = item(new SeismographBlockItem(), "seismograph");
 
 		static <T extends Item> T item(T c, String id) {
-			Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(AftershockMod.MODID, id), c);
+			Registry.register(BuiltInRegistries.ITEM, AftershockMod.modResource(id), c);
 			return c;
 		}
 	}

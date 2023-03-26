@@ -31,6 +31,6 @@
 		"minecraft": "~1.19.3",
 		"java": ">=17",
 		"fabric-api": "*",
-		"azurelib": ">=1.0.5"
+		"azurelib": ">=1.0.6"
 	}
 }

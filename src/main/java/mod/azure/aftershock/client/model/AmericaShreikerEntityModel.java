@@ -17,8 +17,7 @@ public class AmericaShreikerEntityModel extends DefaultedEntityGeoModel<American
 
 	@Override
 	public ResourceLocation getTextureResource(AmericanShreikerEntity animatable) {
-		return AftershockMod.modResource("textures/entity/american_shreiker/american_shreiker"
-				+ (animatable.getGrowth() >= 42000 ? "_molt.png" : ".png"));
+		return AftershockMod.modResource("textures/entity/american_shreiker/american_shreiker" + (animatable.getGrowth() >= 42000 ? "_molt.png" : ".png"));
 	}
 
 	@Override

@@ -20,7 +20,11 @@
 		"minecraft:end_rod",
 		"minecraft:glow_lichen",
 		"minecraft:lantern",
-		"minecraft:redstone",
+		"minecraft:repeater",
+		"minecraft:comparator",
+		"minecraft:redstone_lamp",
+		"minecraft:redstone_block",
+		"minecraft:redstone_wire",
 		"minecraft:redstone_torch",
 		"minecraft:redstone_wall_torch",
 		"minecraft:sea_pickle",
@@ -30,6 +34,7 @@
 		"minecraft:torch",
 		"minecraft:campfire",
 		"minecraft:soul_campfire",
-		"minecraft:wall_torch"
+		"minecraft:wall_torch",
+		"#minecraft:crops"
 	]
 }

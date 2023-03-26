@@ -2221,6 +2221,14 @@
 						"2.875": [0, 0, 0]
 					}
 				}
+			},
+			"sound_effects": {
+				"0.5": {
+					"effect": "looking"
+				},
+				"1.75": {
+					"effect": "looking"
+				}
 			}
 		},
 		"aggro": {
@@ -4671,6 +4679,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.2": {
+					"effect": "dying"
 				}
 			}
 		},

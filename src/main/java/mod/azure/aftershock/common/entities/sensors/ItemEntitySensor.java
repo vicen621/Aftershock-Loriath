@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.PredicateSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -22,7 +23,7 @@ public class ItemEntitySensor<E extends LivingEntity> extends PredicateSensor<It
 		setScanRate(entity -> 9);
 		setPredicate((item, entity) -> {
 			ItemStack itemStack = item.getItem();
-			return itemStack.getItem().isEdible() && item.isAlive() && !item.hasPickUpDelay();
+			return (itemStack.getItem().isEdible() || itemStack.is(Items.WHEAT) || itemStack.is(Items.WHEAT_SEEDS) || itemStack.is(Items.BEETROOT_SEEDS) || itemStack.is(Items.MELON_SEEDS) || itemStack.is(Items.PUMPKIN_SEEDS)) && item.isAlive() && !item.hasPickUpDelay();
 		});
 	}
 
@@ -38,8 +39,7 @@ public class ItemEntitySensor<E extends LivingEntity> extends PredicateSensor<It
 
 	@Override
 	protected void doTick(ServerLevel level, E entity) {
-		List<ItemEntity> projectiles = EntityRetrievalUtil.getEntities(level, entity.getBoundingBox().inflate(7),
-				target -> target instanceof ItemEntity projectile && predicate().test(projectile, entity));
+		List<ItemEntity> projectiles = EntityRetrievalUtil.getEntities(level, entity.getBoundingBox().inflate(7), target -> target instanceof ItemEntity projectile && predicate().test(projectile, entity));
 
 		if (!projectiles.isEmpty()) {
 			projectiles.sort(Comparator.comparingDouble(entity::distanceToSqr));

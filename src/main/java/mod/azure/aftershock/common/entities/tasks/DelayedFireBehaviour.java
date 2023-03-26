@@ -6,19 +6,19 @@ import mod.azure.aftershock.common.entities.base.BaseEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 
-public abstract class DelayedFoodBehaviour<E extends BaseEntity> extends ExtendedBehaviour<E> {
+public abstract class DelayedFireBehaviour<E extends BaseEntity> extends ExtendedBehaviour<E> {
 	protected final int delayTime;
 	protected long delayFinishedAt = 0;
 	protected Consumer<E> delayedCallback = entity -> {
 	};
 
-	public DelayedFoodBehaviour(int delayTicks) {
+	public DelayedFireBehaviour(int delayTicks) {
 		this.delayTime = delayTicks;
 
 		runFor(entity -> Math.max(delayTicks, 60));
 	}
 
-	public final DelayedFoodBehaviour<E> whenActivating(Consumer<E> callback) {
+	public final DelayedFireBehaviour<E> whenActivating(Consumer<E> callback) {
 		this.delayedCallback = callback;
 
 		return this;
@@ -52,7 +52,6 @@ public abstract class DelayedFoodBehaviour<E extends BaseEntity> extends Extende
 	protected final void tick(ServerLevel level, E entity, long gameTime) {
 		super.tick(level, entity, gameTime);
 
-		entity.setEatingStatus(true);
 		if (this.delayFinishedAt <= gameTime) {
 			doDelayedAction(entity);
 			this.delayedCallback.accept(entity);

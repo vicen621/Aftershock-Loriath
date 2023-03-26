@@ -24,11 +24,9 @@ public class AmericanShreikerEntityRenderer extends GeoEntityRenderer<AmericanSh
 	}
 
 	@Override
-	public void render(AmericanShreikerEntity entity, float entityYaw, float partialTicks, PoseStack stack,
-			MultiBufferSource bufferIn, int packedLightIn) {
-		float scaleFactor = 0.5f + ((entity.getGrowth() / 1200) / 2.0f);
-		stack.scale(entity.getGrowth() > 1200 ? 1 : scaleFactor, entity.getGrowth() > 1200 ? 1 : scaleFactor,
-				entity.getGrowth() > 1200 ? 1 : scaleFactor);
+	public void render(AmericanShreikerEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
+		var scaleFactor = 0.5f + ((entity.getGrowth() / 1200) / 2.0f);
+		stack.scale(entity.getGrowth() > 1200 ? 1.35F : scaleFactor, entity.getGrowth() > 1200 ? 1.35F : scaleFactor, entity.getGrowth() > 1200 ? 1.35F : scaleFactor);
 		super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
 	}
 }

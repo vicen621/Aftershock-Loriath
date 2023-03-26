@@ -4590,6 +4590,14 @@
 						"2.8333": [0, 0, 0]
 					}
 				}
+			},
+			"sound_effects": {
+				"0.5": {
+					"effect": "looking"
+				},
+				"1.75": {
+					"effect": "looking"
+				}
 			}
 		},
 		"agro": {
@@ -9485,6 +9493,11 @@
 					"rotation": [-26.22889, -15.14608, 115.39813],
 					"position": [-0.7, 0.6, 0]
 				}
+			},
+			"sound_effects": {
+				"1.0": {
+					"effect": "fire"
+				}
 			}
 		},
 		"hurt": {
@@ -12248,6 +12261,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.2": {
+					"effect": "dying"
 				}
 			}
 		},

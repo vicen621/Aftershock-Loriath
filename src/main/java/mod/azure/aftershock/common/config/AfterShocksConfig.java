@@ -12,7 +12,7 @@ public class AfterShocksConfig extends MidnightConfig {
 	public static int dirtdevil_damage = 3;
 	@Entry
 	public static int dirtdevil_ram_damage = 8;
-	
+
 	@Entry
 	public static double americangraboid_health = 80;
 	@Entry
@@ -21,14 +21,14 @@ public class AfterShocksConfig extends MidnightConfig {
 	public static int americangraboid_exp = 10;
 	@Entry
 	public static int americangraboid_damage = 6;
-	
+
 	@Entry
 	public static double americanshreiker_health = 20;
 	@Entry
 	public static int americanshreiker_exp = 4;
 	@Entry
 	public static int americanshreiker_damage = 6;
-	
+
 	@Entry
 	public static double americanblaster_health = 40;
 	@Entry
