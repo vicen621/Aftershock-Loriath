@@ -86,7 +86,7 @@ public class AftershockMod implements ModInitializer {
 	}
 
 	public static final ResourceLocation modResource(String name) {
-		return AftershockMod.modResource(name);
+		return new ResourceLocation(AftershockMod.MODID, name);
 	}
 
 	public class ModMobs {
