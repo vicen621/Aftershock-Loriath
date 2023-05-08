@@ -10,6 +10,7 @@ import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.AmericanBlasterEntity;
 import mod.azure.aftershock.common.entities.AmericanGraboidEntity;
 import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
+import mod.azure.aftershock.common.entities.DirtDragonEntity;
 import mod.azure.aftershock.common.entities.sensors.AftershockMemoryTypes;
 import mod.azure.aftershock.common.entities.sensors.AftershockSensors;
 import mod.azure.aftershock.common.helpers.AttackType;
