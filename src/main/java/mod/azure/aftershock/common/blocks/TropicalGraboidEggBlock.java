@@ -37,13 +37,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class GraboidEggBlock extends Block {
+public class TropicalGraboidEggBlock extends Block {
 
 	public static final int MAX_HATCH_LEVEL = 2;
 	public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
 	public static final IntegerProperty EGGS = BlockStateProperties.EGGS;
 
-	public GraboidEggBlock() {
+	public TropicalGraboidEggBlock() {
 		super(Block.Properties.of(Material.EGG).strength(4.0F).sound(SoundType.STONE).randomTicks().noOcclusion());
 		this.registerDefaultState((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(HATCH, 0)).setValue(EGGS, 1));
 	}
@@ -109,6 +109,7 @@ public class GraboidEggBlock extends Block {
 				serverLevel.playSound(null, blockPos, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 0.3f, 0.9f + randomSource.nextFloat() * 0.2f);
 				serverLevel.removeBlock(blockPos, false);
 				serverLevel.levelEvent(2001, blockPos, Block.getId(blockState));
+//				var dirtDragon = ModMobs.TROPICAL_DIRT_DRAGON.create(serverLevel);
 				var dirtDragon = ModMobs.AMERICAN_DIRT_DRAGON.create(serverLevel);
 				dirtDragon.setGrowth(0);
 				dirtDragon.moveTo((double) blockPos.getX() + 0.3 + 0, blockPos.getY(), (double) blockPos.getZ() + 0.3, 0.0f, 0.0f);
@@ -137,6 +138,7 @@ public class GraboidEggBlock extends Block {
 			world.destroyBlock(pos, true);
 			if (!player.getMainHandItem().is(ItemTags.TOOLS))
 				world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), ModItems.GRABOID_EGG_ITEM.getDefaultInstance()));
+//				world.addFreshEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), ModItems.TROPICAL_GRABOID_EGG_ITEM.getDefaultInstance()));
 		}
 		return InteractionResult.SUCCESS;
 	}

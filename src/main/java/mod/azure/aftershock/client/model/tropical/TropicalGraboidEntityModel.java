@@ -1,4 +1,4 @@
-package mod.azure.aftershock.client.model;
+package mod.azure.aftershock.client.model.tropical;
 
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.entities.american.AmericanGraboidEntity;
@@ -9,10 +9,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
-public class AmericanGraboidEntityModel extends DefaultedEntityGeoModel<AmericanGraboidEntity> {
+public class TropicalGraboidEntityModel extends DefaultedEntityGeoModel<AmericanGraboidEntity> {
 
-	public AmericanGraboidEntityModel() {
-		super(AftershockMod.modResource("american_graboid/american_graboid"), false);
+	public TropicalGraboidEntityModel() {
+		super(AftershockMod.modResource("tropical_graboid/tropical_graboid"), false);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package mod.azure.aftershock.client.model;
+package mod.azure.aftershock.client.model.american;
 
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.entities.american.AmericanBlasterEntity;

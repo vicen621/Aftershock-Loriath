@@ -1,8 +1,8 @@
-package mod.azure.aftershock.client.render;
+package mod.azure.aftershock.client.render.tropical;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import mod.azure.aftershock.client.model.AmericanDirtDragonEntityModel;
+import mod.azure.aftershock.client.model.tropical.TropicalDirtDragonEntityModel;
 import mod.azure.aftershock.common.entities.american.AmericanDirtDragonEntity;
 import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import net.fabricmc.api.EnvType;
@@ -11,10 +11,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 @Environment(EnvType.CLIENT)
-public class AmericanDirtDragonEntityRenderer extends GeoEntityRenderer<AmericanDirtDragonEntity> {
+public class TropicalDirtDragonEntityRenderer extends GeoEntityRenderer<AmericanDirtDragonEntity> {
 
-	public AmericanDirtDragonEntityRenderer(EntityRendererProvider.Context context) {
-		super(context, new AmericanDirtDragonEntityModel());
+	public TropicalDirtDragonEntityRenderer(EntityRendererProvider.Context context) {
+		super(context, new TropicalDirtDragonEntityModel());
 		this.shadowRadius = 0.5f;
 	}
 

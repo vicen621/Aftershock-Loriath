@@ -1,4 +1,4 @@
-package mod.azure.aftershock.client.model;
+package mod.azure.aftershock.client.model.tropical;
 
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.entities.american.AmericanDirtDragonEntity;
@@ -9,10 +9,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 @Environment(EnvType.CLIENT)
-public class AmericanDirtDragonEntityModel extends DefaultedEntityGeoModel<AmericanDirtDragonEntity> {
+public class TropicalDirtDragonEntityModel extends DefaultedEntityGeoModel<AmericanDirtDragonEntity> {
 
-	public AmericanDirtDragonEntityModel() {
-		super(AftershockMod.modResource("american_dirt_dragon/american_dirt_dragon"), false);
+	public TropicalDirtDragonEntityModel() {
+		super(AftershockMod.modResource("tropical_shreiker/tropical_shreiker"), false);
 	}
 
 	@Override

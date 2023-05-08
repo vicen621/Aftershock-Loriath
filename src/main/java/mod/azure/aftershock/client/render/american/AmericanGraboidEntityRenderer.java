@@ -1,8 +1,8 @@
-package mod.azure.aftershock.client.render;
+package mod.azure.aftershock.client.render.american;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import mod.azure.aftershock.client.model.AmericanGraboidEntityModel;
+import mod.azure.aftershock.client.model.american.AmericanGraboidEntityModel;
 import mod.azure.aftershock.common.entities.american.AmericanGraboidEntity;
 import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import net.fabricmc.api.EnvType;
