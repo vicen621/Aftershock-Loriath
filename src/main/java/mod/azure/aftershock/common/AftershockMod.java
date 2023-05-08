@@ -125,7 +125,7 @@ public class AftershockMod implements ModInitializer {
 		public static AzureSpawnEgg AMERICAN_GRABOID_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_GRABOID, 0x4d4d4d, 0x7e6d50), "american_graboid_spawnegg");
 		public static AzureSpawnEgg DIRT_DRAGON_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.DIRT_DRAGON, 0xf2e7b0, 0x9e6025), "dirt_dragon_spawnegg");
 
-		public static BlockItem GRABOID_EGG_ITEM = item(new BlockItem(ModBlocks.GRABOID_EGG, new Item.Properties()), "graboid_egg");
+		public static GraboidEggBlockItem GRABOID_EGG_ITEM = item(new GraboidEggBlockItem(ModBlocks.GRABOID_EGG), "graboid_egg");
 		public static SeismographBlockItem SEIMOGRAPH_ITEM = item(new SeismographBlockItem(), "seismograph");
 		public static PortableSeismographItem PORTABLE_SEIMOGRAPH_ITEM = item(new PortableSeismographItem(), "portable_seismograph");
 
