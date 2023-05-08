@@ -1,0 +1,14 @@
+{
+	"structures": [
+		{
+			"structure": "aftershock:granite_egg",
+			"weight": 1
+		}
+	],
+	"placement": {
+		"salt": 1234667890,
+		"spacing": 16,
+		"separation": 4,
+		"type": "minecraft:random_spread"
+	}
+}

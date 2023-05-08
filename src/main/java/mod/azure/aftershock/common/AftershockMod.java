@@ -1,5 +1,7 @@
 package mod.azure.aftershock.common;
 
+import com.mojang.serialization.Codec;
+
 import eu.midnightdust.lib.config.MidnightConfig;
 import mod.azure.aftershock.common.blocks.GraboidEggBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlock;
@@ -11,7 +13,12 @@ import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
 import mod.azure.aftershock.common.entities.sensors.AftershockMemoryTypes;
 import mod.azure.aftershock.common.entities.sensors.AftershockSensors;
 import mod.azure.aftershock.common.helpers.AttackType;
+import mod.azure.aftershock.common.items.GraboidEggBlockItem;
+import mod.azure.aftershock.common.items.PortableSeismographItem;
 import mod.azure.aftershock.common.items.SeismographBlockItem;
+import mod.azure.aftershock.common.structures.GraniteEggStructure;
+import mod.azure.aftershock.common.structures.RedSandEggStructure;
+import mod.azure.aftershock.common.structures.SandEggStructure;
 import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.items.AzureSpawnEgg;
 import net.fabricmc.api.ModInitializer;
@@ -35,8 +42,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureType;
 
-@SuppressWarnings("static-access")
 public class AftershockMod implements ModInitializer {
 
 	public static final String MODID = "aftershock";
@@ -78,6 +86,7 @@ public class AftershockMod implements ModInitializer {
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModMobs.initialize();
+		ModStructures.registerStructureFeatures();
 		AzureLib.initialize();
 	}
 
@@ -130,6 +139,26 @@ public class AftershockMod implements ModInitializer {
 		static <T extends Item> T item(T c, String id) {
 			Registry.register(BuiltInRegistries.ITEM, AftershockMod.modResource(id), c);
 			return c;
+		}
+
+		public static void initialize() {
+		}
+	}
+
+	public class ModStructures {
+
+		public static StructureType<?> SANDEGG_STRUCTURE;
+		public static StructureType<?> REDSANDEGG_STRUCTURE;
+		public static StructureType<?> GRANITEEGG_STRUCTURE;
+
+		public static void registerStructureFeatures() {
+			SANDEGG_STRUCTURE = register(AftershockMod.modResource("sand_egg"), SandEggStructure.CODEC);
+			REDSANDEGG_STRUCTURE = register(AftershockMod.modResource("redsand_egg"), RedSandEggStructure.CODEC);
+			GRANITEEGG_STRUCTURE = register(AftershockMod.modResource("granite_egg"), GraniteEggStructure.CODEC);
+		}
+
+		private static <S extends Structure> StructureType<S> register(ResourceLocation id, Codec<S> codec) {
+			return Registry.register(BuiltInRegistries.STRUCTURE_TYPE, id, () -> codec);
 		}
 	}
 }
