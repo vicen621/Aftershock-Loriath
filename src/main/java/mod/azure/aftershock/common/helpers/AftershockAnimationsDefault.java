@@ -25,4 +25,11 @@ public class AftershockAnimationsDefault {
 	public static final RawAnimation TAKE_OFF = RawAnimation.begin().then("take_off", LoopType.PLAY_ONCE);
 	public static final RawAnimation GLIDING = RawAnimation.begin().thenLoop("gliding");
 	public static final RawAnimation GLIDING_LOOK = RawAnimation.begin().thenLoop("gliding_look");
+	public static final RawAnimation DRAGGING = RawAnimation.begin().then("dragging", LoopType.PLAY_ONCE);
+	public static final RawAnimation GRAB1 = RawAnimation.begin().then("grab1", LoopType.PLAY_ONCE);
+	public static final RawAnimation GRAB2 = RawAnimation.begin().then("grab2", LoopType.PLAY_ONCE);
+	public static final RawAnimation ERUPTING = RawAnimation.begin().then("erupting", LoopType.PLAY_ONCE);
+	public static final RawAnimation BITE = RawAnimation.begin().then("bite", LoopType.PLAY_ONCE);
+	public static final RawAnimation DIGOUT = RawAnimation.begin().then("digout", LoopType.PLAY_ONCE);
+	public static final RawAnimation DIGIN = RawAnimation.begin().then("digin", LoopType.PLAY_ONCE);
 }
