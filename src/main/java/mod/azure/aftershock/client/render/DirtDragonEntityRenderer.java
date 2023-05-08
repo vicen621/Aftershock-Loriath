@@ -24,9 +24,9 @@ public class DirtDragonEntityRenderer extends GeoEntityRenderer<AmericanShreiker
 	}
 
 	@Override
-	public void render(AmericanShreikerEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
-		float scaleFactor = 0.8f + ((entity.getGrowth() / 1200) / 4.0f);
-		stack.scale(scaleFactor, scaleFactor, scaleFactor);
+	public void render(DirtDragonEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
+		var scaleFactor = 0.3f + ((entity.getGrowth() / 1200) / 2.0f);
+		stack.scale(entity.getGrowth() > 1200 ? 1.0F : scaleFactor, entity.getGrowth() > 1200 ? 1.0F : scaleFactor, entity.getGrowth() > 1200 ? 1.0F : scaleFactor);
 		super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
 	}
 }
