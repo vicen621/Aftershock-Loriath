@@ -24,8 +24,9 @@ public class AmericanGraboidEntityRenderer extends GeoEntityRenderer<AmericanGra
 	}
 
 	@Override
-	public void render(AmericanGraboidEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-		poseStack.scale(1.1F, 1.1F, 1.1F);
-		super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+	public void render(AmericanGraboidEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
+		var scaleFactor = 0.3f + ((entity.getGrowth() / 1200) / 2.0f);
+		stack.scale(entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor);
+		super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
 	}
 }
