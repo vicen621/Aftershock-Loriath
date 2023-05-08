@@ -43,7 +43,7 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 	@Override
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 
-		return entity.getGrowth() >= 1200 && !entity.isPuking();
+		return entity.getGrowth() >= (entity instanceof AmericanShreikerEntity ? 1200 : 0) && !entity.isPuking();
 	}
 
 	@Override
@@ -68,8 +68,12 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 			entity.setEatingStatus(true);
 		}
 		if (itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2)) {
-			entity.setPukingStatus(true);
+			if (entity instanceof AmericanShreikerEntity shriker)
+				shriker.setPukingStatus(true);
 			entity.setEatingStatus(false);
+			entity.heal(2.5F);
+			if (entity instanceof AmericanBlasterEntity blaster)
+				blaster.eatingCounter++;
 			entity.getNavigation().stop();
 			itemLocation.stream().findFirst().get().getItem().finishUsingItem(entity.level, entity);
 			itemLocation.stream().findFirst().get().getItem().shrink(1);

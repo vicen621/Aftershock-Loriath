@@ -66,6 +66,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	protected static final EntityDataAccessor<Float> GROWTH = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.FLOAT);
 	private static final EntityDataAccessor<AttackType> CURRENT_ATTACK_TYPE = SynchedEntityData.defineId(BaseEntity.class, AftershockMod.ALIEN_ATTACK_TYPE);
 	protected static final EntityDataAccessor<Integer> CLIENT_ANGER_LEVEL = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.INT);
+	public static final EntityDataAccessor<Integer> STATE = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.INT);
 	public static final EntityDataAccessor<Boolean> EAT = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> PUKE = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> SCREAM = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
@@ -172,6 +173,14 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 
 	public void setSearchingStatus(boolean searching) {
 		this.entityData.set(SEARCHING, Boolean.valueOf(searching));
+	}
+
+	public int getAttckingState() {
+		return entityData.get(STATE);
+	}
+
+	public void setAttackingState(int time) {
+		entityData.set(STATE, time);
 	}
 
 	@Override

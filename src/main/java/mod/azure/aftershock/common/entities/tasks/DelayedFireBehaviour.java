@@ -34,6 +34,7 @@ public abstract class DelayedFireBehaviour<E extends BaseEntity> extends Extende
 			super.start(level, entity, gameTime);
 			doDelayedAction(entity);
 		}
+		entity.setAttackingState(1);
 	}
 
 	@Override
@@ -41,6 +42,7 @@ public abstract class DelayedFireBehaviour<E extends BaseEntity> extends Extende
 		super.stop(level, entity, gameTime);
 
 		this.delayFinishedAt = 0;
+		entity.setAttackingState(0);
 	}
 
 	@Override

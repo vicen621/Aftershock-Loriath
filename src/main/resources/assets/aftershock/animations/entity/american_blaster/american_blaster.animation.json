@@ -10754,6 +10754,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"3.5": {
+					"effect": "fall"
+				}
 			}
 		},
 		"wake": {
@@ -11335,6 +11340,14 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.5": {
+					"effect": "looking"
+				},
+				"1.75": {
+					"effect": "looking"
 				}
 			}
 		},
