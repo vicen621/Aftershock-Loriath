@@ -163,7 +163,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	@Override
 	public void growUp(LivingEntity entity) {
 		var world = entity.level;
-		if (!world.isClientSide()) {
+		if (!world.isClientSide() && !this.isAlbino()) {
 			var newEntity = growInto();
 			var newEntity1 = growInto();
 			var newEntity2 = growInto();
@@ -194,7 +194,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
 		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
 		entity.level.addFreshEntity(areaEffectCloudEntity);
-		return entity;
+		return this.isAlbino() ? null : entity;
 	}
 
 	@Override
@@ -230,7 +230,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, SpawnGroupData entityData, CompoundTag entityNbt) {
 		// Spawn grown if used with summon command or egg.
 		if (spawnReason == MobSpawnType.COMMAND || spawnReason == MobSpawnType.SPAWN_EGG)
-			setGrowth(1200);
+			setGrowth(1250);
 		return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
 	}
 

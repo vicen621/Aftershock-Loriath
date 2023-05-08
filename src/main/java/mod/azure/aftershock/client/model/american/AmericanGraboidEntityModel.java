@@ -16,6 +16,11 @@ public class AmericanGraboidEntityModel extends DefaultedEntityGeoModel<American
 	}
 
 	@Override
+	public ResourceLocation getTextureResource(AmericanGraboidEntity animatable) {
+		return AftershockMod.modResource("textures/entity/american_graboid/american_graboid" + (animatable.isAlbino() ? "_albino.png" : ".png"));
+	}
+
+	@Override
 	public RenderType getRenderType(AmericanGraboidEntity animatable, ResourceLocation texture) {
 		return RenderType.entityTranslucent(getTextureResource(animatable));
 	}

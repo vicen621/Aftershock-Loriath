@@ -161,6 +161,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		var entity = ModMobs.AMERICAN_GRABOID.create(level);
 		if (hasCustomName())
 			entity.setCustomName(this.getCustomName());
+		if (isAlbino())
+			entity.setAlbinoStatus(true);
 		entity.setNewBornStatus(true);
 		entity.setGrowth(0);
 		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
@@ -184,7 +186,9 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, SpawnGroupData entityData, CompoundTag entityNbt) {
 		// Spawn grown if used with summon command or egg.
 		if (spawnReason == MobSpawnType.COMMAND || spawnReason == MobSpawnType.SPAWN_EGG)
-			setGrowth(1200);
+			setGrowth(1250);
+		if (spawnReason == MobSpawnType.COMMAND || spawnReason == MobSpawnType.SPAWN_EGG || spawnReason == MobSpawnType.SPAWNER || spawnReason == MobSpawnType.NATURAL || spawnReason == MobSpawnType.BREEDING || spawnReason == MobSpawnType.MOB_SUMMONED || spawnReason == MobSpawnType.EVENT || spawnReason == MobSpawnType.REINFORCEMENT || spawnReason == MobSpawnType.BUCKET || spawnReason == MobSpawnType.DISPENSER || spawnReason == MobSpawnType.PATROL)
+			this.setAlbinoStatus(this.getRandom().nextInt(0, 100) == 5 ? true : false);
 		return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
 	}
 

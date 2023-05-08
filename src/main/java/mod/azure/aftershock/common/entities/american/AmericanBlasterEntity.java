@@ -262,6 +262,10 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		super.readAdditionalSaveData(compoundTag);
 		if (compoundTag.getBoolean("ignited"))
 			this.ignite();
+		if (compoundTag.contains("passedout"))
+			setPassedOutStatus(compoundTag.getBoolean("passedout"));
+		if (compoundTag.contains("wakingup"))
+			setWakingUpStatus(compoundTag.getBoolean("wakingup"));
 	}
 
 	public void setWakingUpStatus(boolean passout) {

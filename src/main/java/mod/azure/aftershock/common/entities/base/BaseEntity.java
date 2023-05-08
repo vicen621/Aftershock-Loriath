@@ -72,6 +72,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	public static final EntityDataAccessor<Boolean> SCREAM = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> BIRTH = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> SEARCHING = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> ALBINO = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	protected static final Logger LOGGER = LogUtils.getLogger();
 	public static final Predicate<ItemEntity> PICKABLE_DROP_FILTER = item -> {
 		ItemStack itemStack = item.getItem();
@@ -183,6 +184,14 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		entityData.set(STATE, time);
 	}
 
+	public boolean isAlbino() {
+		return this.entityData.get(ALBINO);
+	}
+
+	public void setAlbinoStatus(boolean searching) {
+		this.entityData.set(ALBINO, Boolean.valueOf(searching));
+	}
+
 	@Override
 	public void defineSynchedData() {
 		super.defineSynchedData();
@@ -195,12 +204,20 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		entityData.define(BIRTH, false);
 		entityData.define(STATE, 0);
 		entityData.define(SEARCHING, false);
+		entityData.define(ALBINO, false);
 	}
 
 	@Override
 	public void addAdditionalSaveData(CompoundTag nbt) {
 		super.addAdditionalSaveData(nbt);
 		nbt.putFloat("growth", getGrowth());
+		nbt.putBoolean("is_eating", isEating());
+		nbt.putBoolean("is_puking", isPuking());
+		nbt.putBoolean("is_newborn", isNewBorn());
+		nbt.putBoolean("is_screaming", isScreaming());
+		nbt.putInt("attack_state", getAttckingState());
+		nbt.putBoolean("is_searching", isSearching());
+		nbt.putBoolean("is_albino", isAlbino());
 		AzureVibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(LOGGER::error).ifPresent(tag -> nbt.put("listener", (Tag) tag));
 		AngerManagement.codec(this::canTargetEntity).encodeStart(NbtOps.INSTANCE, this.angerManagement).resultOrPartial(LOGGER::error).ifPresent(tag -> nbt.put("anger", (Tag) tag));
 	}
@@ -210,6 +227,20 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		super.readAdditionalSaveData(nbt);
 		if (nbt.contains("growth"))
 			setGrowth(nbt.getFloat("growth"));
+		if (nbt.contains("is_eating"))
+			setEatingStatus(nbt.getBoolean("is_eating"));
+		if (nbt.contains("is_puking"))
+			setPukingStatus(nbt.getBoolean("is_puking"));
+		if (nbt.contains("is_newborn"))
+			setNewBornStatus(nbt.getBoolean("is_newborn"));
+		if (nbt.contains("is_screaming"))
+			setScreamingStatus(nbt.getBoolean("is_screaming"));
+		if (nbt.contains("attack_state"))
+			setAttackingState(nbt.getInt("attack_state"));
+		if (nbt.contains("is_searching"))
+			setSearchingStatus(nbt.getBoolean("is_searching"));
+		if (nbt.contains("is_albino"))
+			setAlbinoStatus(nbt.getBoolean("is_albino"));
 		if (nbt.contains("anger")) {
 			AngerManagement.codec(this::canTargetEntity).parse(new Dynamic<Tag>(NbtOps.INSTANCE, nbt.get("anger"))).resultOrPartial(LOGGER::error).ifPresent(angerManagement -> {
 				this.angerManagement = angerManagement;

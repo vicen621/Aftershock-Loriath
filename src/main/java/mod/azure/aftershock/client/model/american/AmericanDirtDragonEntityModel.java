@@ -16,6 +16,11 @@ public class AmericanDirtDragonEntityModel extends DefaultedEntityGeoModel<Ameri
 	}
 
 	@Override
+	public ResourceLocation getTextureResource(AmericanDirtDragonEntity animatable) {
+		return AftershockMod.modResource("textures/entity/american_dirt_dragon/american_dirt_dragon" + (animatable.isAlbino() ? "_albino.png" : ".png"));
+	}
+
+	@Override
 	public RenderType getRenderType(AmericanDirtDragonEntity animatable, ResourceLocation texture) {
 		return RenderType.entityTranslucent(getTextureResource(animatable));
 	}

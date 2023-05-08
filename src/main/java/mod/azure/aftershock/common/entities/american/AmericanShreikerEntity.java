@@ -233,7 +233,7 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 	public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, MobSpawnType spawnReason, SpawnGroupData entityData, CompoundTag entityNbt) {
 		// Spawn grown if used with summon command or egg.
 		if (spawnReason == MobSpawnType.COMMAND || spawnReason == MobSpawnType.SPAWN_EGG)
-			setGrowth(1200);
+			setGrowth(1250);
 		return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
 	}
 
