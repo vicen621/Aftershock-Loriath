@@ -14,6 +14,8 @@ public class AftershockAnimationsDefault {
 	public static final RawAnimation SCREAM = RawAnimation.begin().thenLoop("aggro");
 	public static final RawAnimation MOLT = RawAnimation.begin().thenPlayAndHold("statis_start");
 	public static final RawAnimation SPAWN = RawAnimation.begin().thenPlayAndHold("statis_idle");
+	public static final RawAnimation PASSOUT = RawAnimation.begin().thenPlayAndHold("pass_out");
+	public static final RawAnimation WAKEUP = RawAnimation.begin().then("wake", LoopType.PLAY_ONCE);
 	public static final RawAnimation RUN = RawAnimation.begin().thenLoop("running");
 	public static final RawAnimation RUNSCREAM = RawAnimation.begin().thenLoop("running");
 	public static final RawAnimation WALK = RawAnimation.begin().thenLoop("moving");
