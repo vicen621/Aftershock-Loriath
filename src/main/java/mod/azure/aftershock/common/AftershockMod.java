@@ -127,6 +127,7 @@ public class AftershockMod implements ModInitializer {
 
 		public static BlockItem GRABOID_EGG_ITEM = item(new BlockItem(ModBlocks.GRABOID_EGG, new Item.Properties()), "graboid_egg");
 		public static SeismographBlockItem SEIMOGRAPH_ITEM = item(new SeismographBlockItem(), "seismograph");
+		public static PortableSeismographItem PORTABLE_SEIMOGRAPH_ITEM = item(new PortableSeismographItem(), "portable_seismograph");
 
 		static <T extends Item> T item(T c, String id) {
 			Registry.register(BuiltInRegistries.ITEM, AftershockMod.modResource(id), c);
