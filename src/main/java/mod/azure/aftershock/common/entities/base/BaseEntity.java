@@ -193,6 +193,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		entityData.define(PUKE, false);
 		entityData.define(SCREAM, false);
 		entityData.define(BIRTH, false);
+		entityData.define(STATE, 0);
 		entityData.define(SEARCHING, false);
 	}
 
@@ -357,18 +358,6 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		if (level instanceof ServerLevel) {
 			var serverLevel = (ServerLevel) level;
 			this.dynamicGameEventListener.getListener().tick(serverLevel);
-		}
-
-		// Searching Logic
-		var velocityLength = this.getDeltaMovement().horizontalDistance();
-		if (!this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
-			searchingCooldown++;
-			if (searchingCooldown == 10)
-				this.setSearchingStatus(true);
-			if (searchingCooldown >= 68) {
-				searchingCooldown = -60;
-				this.setSearchingStatus(false);
-			}
 		}
 		if (this.isAggressive()) {
 			searchingCooldown = -60;

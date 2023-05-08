@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mod.azure.aftershock.common.entities.AmericanBlasterEntity;
+import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.sensors.AftershockMemoryTypes;
 import net.minecraft.server.level.ServerLevel;
