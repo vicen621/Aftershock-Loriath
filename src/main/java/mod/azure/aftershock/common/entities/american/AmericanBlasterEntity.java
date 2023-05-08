@@ -49,6 +49,7 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
@@ -399,6 +400,25 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		if (this.isPassedOut() || this.isWakingUp()) {
 			this.zza = 0.0F;
 			this.yHeadRot = 0.0f;
+		}
+
+		// Block breaking logic
+		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
+			breakingCounter++;
+			if (breakingCounter > 10)
+				for (BlockPos testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
+					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
+						if (!level.isClientSide)
+							this.level.removeBlock(testPos, false);
+						if (this.swingingArm != null)
+							this.swing(swingingArm);
+						breakingCounter = -90;
+						if (level.isClientSide())
+							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
+					}
+				}
+			if (breakingCounter >= 25)
+				breakingCounter = 0;
 		}
 
 		// Searching Logic
