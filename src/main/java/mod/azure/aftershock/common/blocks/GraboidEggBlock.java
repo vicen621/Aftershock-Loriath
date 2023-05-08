@@ -109,7 +109,7 @@ public class GraboidEggBlock extends Block {
 				serverLevel.playSound(null, blockPos, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 0.3f, 0.9f + randomSource.nextFloat() * 0.2f);
 				serverLevel.removeBlock(blockPos, false);
 				serverLevel.levelEvent(2001, blockPos, Block.getId(blockState));
-				var dirtDragon = ModMobs.DIRT_DRAGON.create(serverLevel);
+				var dirtDragon = ModMobs.AMERICAN_DIRT_DRAGON.create(serverLevel);
 				dirtDragon.setGrowth(0);
 				dirtDragon.moveTo((double) blockPos.getX() + 0.3 + 0, blockPos.getY(), (double) blockPos.getZ() + 0.3, 0.0f, 0.0f);
 				serverLevel.addFreshEntity(dirtDragon);

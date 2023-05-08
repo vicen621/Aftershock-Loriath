@@ -7,10 +7,10 @@ import mod.azure.aftershock.common.blocks.GraboidEggBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlockEntity;
 import mod.azure.aftershock.common.config.AfterShocksConfig;
-import mod.azure.aftershock.common.entities.AmericanBlasterEntity;
-import mod.azure.aftershock.common.entities.AmericanGraboidEntity;
-import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
-import mod.azure.aftershock.common.entities.DirtDragonEntity;
+import mod.azure.aftershock.common.entities.american.AmericanBlasterEntity;
+import mod.azure.aftershock.common.entities.american.AmericanGraboidEntity;
+import mod.azure.aftershock.common.entities.american.AmericanShreikerEntity;
+import mod.azure.aftershock.common.entities.american.AmericanDirtDragonEntity;
 import mod.azure.aftershock.common.entities.sensors.AftershockMemoryTypes;
 import mod.azure.aftershock.common.entities.sensors.AftershockSensors;
 import mod.azure.aftershock.common.helpers.AttackType;
@@ -72,7 +72,7 @@ public class AftershockMod implements ModInitializer {
 		entries.accept(ModItems.GRABOID_EGG_ITEM);
 		entries.accept(ModItems.SEIMOGRAPH_ITEM);
 		entries.accept(ModItems.PORTABLE_SEIMOGRAPH_ITEM);
-		entries.accept(ModItems.DIRT_DRAGON_SPAWNEGG);
+		entries.accept(ModItems.AMERICAN_DIRT_DRAGON_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
@@ -102,14 +102,14 @@ public class AftershockMod implements ModInitializer {
 
 		public final static EntityType<AmericanGraboidEntity> AMERICAN_GRABOID = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_graboid"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanGraboidEntity::new).dimensions(EntityDimensions.scalable(2.0f, 1.8F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
-		public final static EntityType<DirtDragonEntity> DIRT_DRAGON = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("dirt_dragon"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, DirtDragonEntity::new).dimensions(EntityDimensions.scalable(0.9f, 0.3F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
+		public final static EntityType<AmericanDirtDragonEntity> AMERICAN_DIRT_DRAGON = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_dirt_dragon"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanDirtDragonEntity::new).dimensions(EntityDimensions.scalable(0.9f, 0.3F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
 		public static final BlockEntityType<SeismographBlockEntity> SEIMOGRAPH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AftershockMod.MODID + ":seismograph", FabricBlockEntityTypeBuilder.create(SeismographBlockEntity::new, ModBlocks.SEIMOGRAPH).build(null));
 
 		public static void initialize() {
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_BLASTER, AmericanBlasterEntity.createMobAttributes());
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_SHREIKER, AmericanShreikerEntity.createMobAttributes());
-			FabricDefaultAttributeRegistry.register(ModMobs.DIRT_DRAGON, DirtDragonEntity.createMobAttributes());
+			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_DIRT_DRAGON, AmericanDirtDragonEntity.createMobAttributes());
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_GRABOID, AmericanGraboidEntity.createMobAttributes());
 		}
 	}
@@ -131,7 +131,7 @@ public class AftershockMod implements ModInitializer {
 		public static AzureSpawnEgg AMERICAN_BLASTER_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_BLASTER, 0x927452, 0x213744), "american_blaster_spawnegg");
 		public static AzureSpawnEgg AMERICAN_SHREIKER_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_SHREIKER, 0x7c5c51, 0xe7ded4), "american_shreiker_spawnegg");
 		public static AzureSpawnEgg AMERICAN_GRABOID_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_GRABOID, 0x4d4d4d, 0x7e6d50), "american_graboid_spawnegg");
-		public static AzureSpawnEgg DIRT_DRAGON_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.DIRT_DRAGON, 0xf2e7b0, 0x9e6025), "dirt_dragon_spawnegg");
+		public static AzureSpawnEgg AMERICAN_DIRT_DRAGON_SPAWNEGG = item(new AzureSpawnEgg(ModMobs.AMERICAN_DIRT_DRAGON, 0xf2e7b0, 0x9e6025), "american_dirt_dragon_spawnegg");
 
 		public static GraboidEggBlockItem GRABOID_EGG_ITEM = item(new GraboidEggBlockItem(ModBlocks.GRABOID_EGG), "graboid_egg");
 		public static SeismographBlockItem SEIMOGRAPH_ITEM = item(new SeismographBlockItem(), "seismograph");

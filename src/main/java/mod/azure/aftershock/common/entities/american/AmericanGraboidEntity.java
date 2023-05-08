@@ -1,4 +1,4 @@
-package mod.azure.aftershock.common.entities;
+package mod.azure.aftershock.common.entities.american;
 
 import java.util.List;
 

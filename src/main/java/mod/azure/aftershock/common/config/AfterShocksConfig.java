@@ -5,13 +5,13 @@ import eu.midnightdust.lib.config.MidnightConfig;
 public class AfterShocksConfig extends MidnightConfig {
 
 	@Entry
-	public static double dirtdevil_health = 12;
+	public static double americandirtdevil_health = 12;
 	@Entry
-	public static int dirtdevil_exp = 2;
+	public static int americandirtdevil_exp = 2;
 	@Entry
-	public static int dirtdevil_damage = 3;
+	public static int americandirtdevil_damage = 3;
 	@Entry
-	public static int dirtdevil_ram_damage = 8;
+	public static int americandirtdevil_ram_damage = 8;
 
 	@Entry
 	public static double americangraboid_health = 80;

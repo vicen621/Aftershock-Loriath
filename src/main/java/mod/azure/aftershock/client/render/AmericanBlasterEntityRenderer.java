@@ -1,7 +1,7 @@
 package mod.azure.aftershock.client.render;
 
 import mod.azure.aftershock.client.model.AmericanBlasterEntityModel;
-import mod.azure.aftershock.common.entities.AmericanBlasterEntity;
+import mod.azure.aftershock.common.entities.american.AmericanBlasterEntity;
 import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

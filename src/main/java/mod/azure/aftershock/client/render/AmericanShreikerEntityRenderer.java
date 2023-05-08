@@ -3,7 +3,7 @@ package mod.azure.aftershock.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import mod.azure.aftershock.client.model.AmericaShreikerEntityModel;
-import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
+import mod.azure.aftershock.common.entities.american.AmericanShreikerEntity;
 import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

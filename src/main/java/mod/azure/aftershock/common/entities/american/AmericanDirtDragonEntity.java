@@ -1,4 +1,4 @@
-package mod.azure.aftershock.common.entities;
+package mod.azure.aftershock.common.entities.american;
 
 import java.util.List;
 
@@ -56,14 +56,14 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.custom.UnreachableTargetSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
 
-public class DirtDragonEntity extends SoundTrackingEntity implements SmartBrainOwner<DirtDragonEntity> {
+public class AmericanDirtDragonEntity extends SoundTrackingEntity implements SmartBrainOwner<AmericanDirtDragonEntity> {
 
-	public DirtDragonEntity(EntityType<? extends BaseEntity> entityType, Level level) {
+	public AmericanDirtDragonEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
-		this.xpReward = AfterShocksConfig.dirtdevil_exp;
+		this.xpReward = AfterShocksConfig.americandirtdevil_exp;
 	}
 
 	// Animation logic
@@ -88,16 +88,16 @@ public class DirtDragonEntity extends SoundTrackingEntity implements SmartBrainO
 	}
 
 	@Override
-	public List<ExtendedSensor<DirtDragonEntity>> getSensors() {
+	public List<ExtendedSensor<AmericanDirtDragonEntity>> getSensors() {
 		return ObjectArrayList.of(
 				// Checks for what last hurt it
 				new HurtBySensor<>(),
 				// Checks if target is unreachable
-				new UnreachableTargetSensor<DirtDragonEntity>());
+				new UnreachableTargetSensor<AmericanDirtDragonEntity>());
 	}
 
 	@Override
-	public BrainActivityGroup<DirtDragonEntity> getCoreTasks() {
+	public BrainActivityGroup<AmericanDirtDragonEntity> getCoreTasks() {
 		return BrainActivityGroup.coreTasks(
 				// Looks at Target
 				new LookAtTarget<>(), new LookAtTargetSink(40, 300),
@@ -106,8 +106,8 @@ public class DirtDragonEntity extends SoundTrackingEntity implements SmartBrainO
 	}
 
 	@Override
-	public BrainActivityGroup<DirtDragonEntity> getIdleTasks() {
-		return BrainActivityGroup.idleTasks(new FirstApplicableBehaviour<DirtDragonEntity>(
+	public BrainActivityGroup<AmericanDirtDragonEntity> getIdleTasks() {
+		return BrainActivityGroup.idleTasks(new FirstApplicableBehaviour<AmericanDirtDragonEntity>(
 				// Target or attack/ alerts other entities of this type in range of target.
 				new TargetOrRetaliate<>(),
 				// Chooses random look target
@@ -120,7 +120,7 @@ public class DirtDragonEntity extends SoundTrackingEntity implements SmartBrainO
 	}
 
 	@Override
-	public BrainActivityGroup<DirtDragonEntity> getFightTasks() {
+	public BrainActivityGroup<AmericanDirtDragonEntity> getFightTasks() {
 		return BrainActivityGroup.fightTasks(
 				// Removes entity from being a target.
 				new InvalidateAttackTarget<>().invalidateIf((entity, target) -> !target.isAlive() || target instanceof Player && ((Player) target).isCreative()),
@@ -140,7 +140,7 @@ public class DirtDragonEntity extends SoundTrackingEntity implements SmartBrainO
 
 	// Mob stats
 	public static AttributeSupplier.Builder createMobAttributes() {
-		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.dirtdevil_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.dirtdevil_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
+		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.americandirtdevil_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.americandirtdevil_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
 	}
 
 	// Mob Navigation
