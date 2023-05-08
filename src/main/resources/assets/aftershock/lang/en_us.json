@@ -17,6 +17,7 @@
 	"aftershock.egg.text": "The egg seems to be warm and moves every so often",
 	"aftershock.seismograph.text": "Can Track Dirt Dragons and Graboids for up to 64 blocks",
 	"aftershock.portable.text": "Can Track Dirt Dragons and Graboids for up to 5 blocks",
+	"aftershock.portable2.text": "Repairs with Iron Ingots",
 	"itemGroup.aftershock.items": "Aftershock",
 	"aftershock.midnightconfig.dirtdevil_health": "Dirt Devil Health",
 	"aftershock.midnightconfig.dirtdevil_exp": "Dirt Devil Exp",

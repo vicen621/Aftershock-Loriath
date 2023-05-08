@@ -26,6 +26,7 @@ public class PortableSeismographItem extends Item {
 	@Override
 	public void appendHoverText(ItemStack itemStack, Level level, List<Component> list, TooltipFlag tooltipFlag) {
 		list.add(Component.translatable("aftershock.portable.text").withStyle(ChatFormatting.YELLOW).withStyle(ChatFormatting.ITALIC));
+		list.add(Component.translatable("aftershock.portable.text2").withStyle(ChatFormatting.WHITE).withStyle(ChatFormatting.ITALIC));
 		super.appendHoverText(itemStack, level, list, tooltipFlag);
 	}
 
