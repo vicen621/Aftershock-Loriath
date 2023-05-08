@@ -352,5 +352,10 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 				this.setSearchingStatus(false);
 			}
 		}
+		if (this.isDeadOrDying()) {
+			this.setSearchingStatus(false);
+			this.searchingCooldown = 0;
+			this.breakingCounter = 0;
+		}
 	}
 }
