@@ -1,5 +1,6 @@
 package mod.azure.aftershock.common.items;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -12,9 +13,14 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.object.PlayState;
 import mod.azure.azurelib.util.AzureLibUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 public class SeismographBlockItem extends BlockItem implements GeoItem {
 
@@ -23,6 +29,12 @@ public class SeismographBlockItem extends BlockItem implements GeoItem {
 
 	public SeismographBlockItem() {
 		super(ModBlocks.SEIMOGRAPH, new Item.Properties());
+	}
+
+	@Override
+	public void appendHoverText(ItemStack itemStack, Level level, List<Component> list, TooltipFlag tooltipFlag) {
+		list.add(Component.translatable("aftershock.seismograph.text").withStyle(ChatFormatting.YELLOW).withStyle(ChatFormatting.ITALIC));
+		super.appendHoverText(itemStack, level, list, tooltipFlag);
 	}
 
 	@Override
