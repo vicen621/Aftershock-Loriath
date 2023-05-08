@@ -30,7 +30,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -41,9 +40,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 public class AftershockMod implements ModInitializer {
 
 	public static final String MODID = "aftershock";
-	public static ModItems ITEMS;
-	public static ModMobs ModMobs;
-	public static ModBlocks ModBlocks;
 	public static final TagKey<Block> DESTRUCTIBLE_LIGHT = TagKey.create(Registries.BLOCK, AftershockMod.modResource("destructible_light"));
 	public static final TagKey<Block> WEAK_BLOCKS = TagKey.create(Registries.BLOCK, AftershockMod.modResource("weak_block"));
 	public static final TagKey<EntityType<?>> HEAT_ENTITY = TagKey.create(Registries.ENTITY_TYPE, AftershockMod.modResource("heat_entity"));
@@ -66,7 +62,8 @@ public class AftershockMod implements ModInitializer {
 	public static final CreativeModeTab ITEMS_GROUP = FabricItemGroup.builder(AftershockMod.modResource("items")).icon(() -> new ItemStack(ModItems.SEIMOGRAPH_ITEM)).displayItems((context, entries) -> {
 		entries.accept(ModItems.GRABOID_EGG_ITEM);
 		entries.accept(ModItems.SEIMOGRAPH_ITEM);
-		// entries.accept(ModItems.DIRT_DRAGON_SPAWNEGG);
+		entries.accept(ModItems.PORTABLE_SEIMOGRAPH_ITEM);
+		entries.accept(ModItems.DIRT_DRAGON_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
 		entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
@@ -76,12 +73,11 @@ public class AftershockMod implements ModInitializer {
 	public void onInitialize() {
 		MidnightConfig.init(MODID, AfterShocksConfig.class);
 		EntityDataSerializers.registerSerializer(ALIEN_ATTACK_TYPE);
-		AftershockSensors.init();
-		AftershockMemoryTypes.init();
-		ITEMS = new ModItems();
-		ModMobs = new ModMobs();
-		ModBlocks = new ModBlocks();
-		ModMobs.init();
+		AftershockSensors.initialize();
+		AftershockMemoryTypes.initialize();
+		ModItems.initialize();
+		ModBlocks.initialize();
+		ModMobs.initialize();
 		AzureLib.initialize();
 	}
 
@@ -90,17 +86,17 @@ public class AftershockMod implements ModInitializer {
 	}
 
 	public class ModMobs {
-		public final static EntityType<AmericanBlasterEntity> AMERICAN_BLASTER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_blaster"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanBlasterEntity::new).dimensions(EntityDimensions.fixed(1.3f, 1.15F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
+		public final static EntityType<AmericanBlasterEntity> AMERICAN_BLASTER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_blaster"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanBlasterEntity::new).dimensions(EntityDimensions.scalable(1.3f, 1.15F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
-		public final static EntityType<AmericanShreikerEntity> AMERICAN_SHREIKER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_shreiker"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanShreikerEntity::new).dimensions(EntityDimensions.fixed(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
+		public final static EntityType<AmericanShreikerEntity> AMERICAN_SHREIKER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_shreiker"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanShreikerEntity::new).dimensions(EntityDimensions.scalable(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
-		public final static EntityType<AmericanGraboidEntity> AMERICAN_GRABOID = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_graboid"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanGraboidEntity::new).dimensions(EntityDimensions.fixed(2.0f, 1.8F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
+		public final static EntityType<AmericanGraboidEntity> AMERICAN_GRABOID = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_graboid"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanGraboidEntity::new).dimensions(EntityDimensions.scalable(2.0f, 1.8F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
 		public final static EntityType<DirtDragonEntity> DIRT_DRAGON = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("dirt_dragon"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, DirtDragonEntity::new).dimensions(EntityDimensions.scalable(0.9f, 0.3F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
 		public static final BlockEntityType<SeismographBlockEntity> SEIMOGRAPH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AftershockMod.MODID + ":seismograph", FabricBlockEntityTypeBuilder.create(SeismographBlockEntity::new, ModBlocks.SEIMOGRAPH).build(null));
 
-		public void init() {
+		public static void initialize() {
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_BLASTER, AmericanBlasterEntity.createMobAttributes());
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_SHREIKER, AmericanShreikerEntity.createMobAttributes());
 			FabricDefaultAttributeRegistry.register(ModMobs.DIRT_DRAGON, DirtDragonEntity.createMobAttributes());
@@ -117,6 +113,8 @@ public class AftershockMod implements ModInitializer {
 			return c;
 		}
 
+		public static void initialize() {
+		}
 	}
 
 	public class ModItems {

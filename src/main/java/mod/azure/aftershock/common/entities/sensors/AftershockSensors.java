@@ -8,7 +8,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 
 public final class AftershockSensors {
 
-	public static void init() {
+	public static void initialize() {
 	}
 
 	public static final Supplier<SensorType<NearbyLightsBlocksSensor<?>>> NEARBY_LIGHT_BLOCKS = register("nearby_light_blocks_aftershock", NearbyLightsBlocksSensor::new);

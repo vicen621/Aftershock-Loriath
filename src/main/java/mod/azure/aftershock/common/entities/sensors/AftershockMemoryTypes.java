@@ -16,7 +16,7 @@ import net.tslat.smartbrainlib.SBLConstants;
 
 public class AftershockMemoryTypes {
 
-	public static void init() {
+	public static void initialize() {
 	}
 
 	public static final Supplier<MemoryModuleType<List<Pair<BlockPos, BlockState>>>> NEARBY_LIGHT_BLOCKS = register("nearby_light_blocks_aftershock");
