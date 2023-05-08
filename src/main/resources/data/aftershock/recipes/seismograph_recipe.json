@@ -1,0 +1,29 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " MS",
+        "RLR",
+        "III"
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "R": {
+            "item": "minecraft:repeater"
+        },
+        "L": {
+            "item": "minecraft:lever"
+        },
+        "M": {
+            "item": "minecraft:map"
+        },
+        "S": {
+            "item": "minecraft:stick"
+        }
+    },
+    "result": {
+        "item": "aftershock:seismograph",
+        "count": 1
+    }
+}
