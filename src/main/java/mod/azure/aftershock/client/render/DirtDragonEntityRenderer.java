@@ -2,8 +2,8 @@ package mod.azure.aftershock.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import mod.azure.aftershock.client.model.AmericaShreikerEntityModel;
-import mod.azure.aftershock.common.entities.AmericanShreikerEntity;
+import mod.azure.aftershock.client.model.DirtDragonEntityModel;
+import mod.azure.aftershock.common.entities.DirtDragonEntity;
 import mod.azure.azurelib.renderer.GeoEntityRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,15 +11,15 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 
 @Environment(EnvType.CLIENT)
-public class DirtDragonEntityRenderer extends GeoEntityRenderer<AmericanShreikerEntity> {
+public class DirtDragonEntityRenderer extends GeoEntityRenderer<DirtDragonEntity> {
 
 	public DirtDragonEntityRenderer(EntityRendererProvider.Context context) {
-		super(context, new AmericaShreikerEntityModel());
+		super(context, new DirtDragonEntityModel());
 		this.shadowRadius = 0.5f;
 	}
 
 	@Override
-	protected float getDeathMaxRotation(AmericanShreikerEntity entityLivingBaseIn) {
+	protected float getDeathMaxRotation(DirtDragonEntity entityLivingBaseIn) {
 		return 0;
 	}
 
