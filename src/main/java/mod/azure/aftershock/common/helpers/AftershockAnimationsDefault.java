@@ -21,4 +21,8 @@ public class AftershockAnimationsDefault {
 	public static final RawAnimation WALK = RawAnimation.begin().thenLoop("moving");
 	public static final RawAnimation DEATH = RawAnimation.begin().thenPlayAndHold("death");
 	public static final RawAnimation BLOW_TORCH = RawAnimation.begin().thenLoop("blow_torch");
+	public static final RawAnimation LAY = RawAnimation.begin().then("laying_egg", LoopType.PLAY_ONCE).then("unlaying_egg", LoopType.PLAY_ONCE);
+	public static final RawAnimation TAKE_OFF = RawAnimation.begin().then("take_off", LoopType.PLAY_ONCE);
+	public static final RawAnimation GLIDING = RawAnimation.begin().thenLoop("gliding");
+	public static final RawAnimation GLIDING_LOOK = RawAnimation.begin().thenLoop("gliding_look");
 }

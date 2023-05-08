@@ -6090,6 +6090,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"1.5": {
+					"effect": "takeoff"
+				}
 			}
 		},
 		"gliding": {
@@ -6569,6 +6574,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.4": {
+					"effect": "takeoff"
 				}
 			}
 		},
@@ -7468,6 +7478,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.4": {
+					"effect": "takeoff"
 				}
 			}
 		},

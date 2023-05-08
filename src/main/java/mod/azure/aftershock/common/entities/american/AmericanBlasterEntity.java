@@ -8,10 +8,12 @@ import mod.azure.aftershock.common.AftershockMod.ModBlocks;
 import mod.azure.aftershock.common.blocks.GraboidEggBlock;
 import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
+import mod.azure.aftershock.common.entities.nav.BlasterFlyControl;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
 import mod.azure.aftershock.common.entities.tasks.EatFoodTask;
 import mod.azure.aftershock.common.entities.tasks.KillLightsTask;
 import mod.azure.aftershock.common.entities.tasks.ShootFireTask;
+import mod.azure.aftershock.common.entities.tasks.StrafeScreamTarget;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
 import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.ai.pathing.AzureNavigation;
@@ -21,6 +23,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -41,6 +44,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -56,6 +60,7 @@ import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -81,9 +86,13 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 	public int eatingCounter;
 	public int passoutCounter;
 	public int wakeupCounter;
+	public int takeoffCounter;
 	public static final EntityDataAccessor<Boolean> DATA_IS_IGNITED = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> PASSED_OUT = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> WAKING_UP = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> LAYEGG = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> TAKING_OFF = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Boolean> SEARCHING_FLYING = SynchedEntityData.defineId(AmericanBlasterEntity.class, EntityDataSerializers.BOOLEAN);
 
 	public AmericanBlasterEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
@@ -91,7 +100,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
 		this.xpReward = AfterShocksConfig.americanblaster_exp;
-//		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
+		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
 	}
 
 	// Animation logic
@@ -100,20 +109,30 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		controllers.add(new AnimationController<>(this, "livingController", 0, event -> {
 			var isDead = event.getAnimatable().dead || event.getAnimatable().getHealth() < 0.01 || event.getAnimatable().isDeadOrDying();
 			var isNewBorn = (event.getAnimatable().isNewBorn() && !isDead && !this.isEating() && !event.getAnimatable().isScreaming() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
-			var isSearching = event.getAnimatable().isSearching() && !event.getAnimatable().isEating() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp();
+			var isSearching = event.getAnimatable().isSearching() && event.getAnimatable().isOnGround() && !event.getAnimatable().isEating() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp();
 			var isScreaming = (event.getAnimatable().getAttckingState() == 1 && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
 			var isPassedout = (event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isWakingup = (event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
+			var isLayingEgg = (event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
+			var isTakingOff = (event.getAnimatable().isTakingOff() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
+			var isSearchingFlying = (event.getAnimatable().isSearchingFlying() && !event.getAnimatable().isOnGround() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isAttacking = getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead;
 			var movingArggo = event.isMoving() && event.getAnimatable().isAggressive();
 			if (isAttacking)
 				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
-			if (event.isMoving() && !this.isAggressive() && this.getLastDamageSource() == null)
+			if (event.isMoving() && !this.isAggressive() && this.getLastDamageSource() == null && this.isOnGround())
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
-			if (movingArggo && this.getLastDamageSource() == null)
+			if (movingArggo && this.getLastDamageSource() == null && this.isOnGround())
 				return event.setAndContinue(AftershockAnimationsDefault.RUN);
-			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : isSearching ? AftershockAnimationsDefault.LOOK : isPassedout ? AftershockAnimationsDefault.PASSOUT : isWakingup ? AftershockAnimationsDefault.WAKEUP : isNewBorn ? AftershockAnimationsDefault.BIRTH : isScreaming ? AftershockAnimationsDefault.BLOW_TORCH : isDead ? AftershockAnimationsDefault.DEATH : AftershockAnimationsDefault.IDLE);
+			if (this.getLastDamageSource() == null && !this.isOnGround() && !isSearchingFlying)
+				return event.setAndContinue(AftershockAnimationsDefault.GLIDING);
+			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT
+					: isTakingOff ? AftershockAnimationsDefault.TAKE_OFF
+							: isLayingEgg ? AftershockAnimationsDefault.LAY : isSearching ? AftershockAnimationsDefault.LOOK : isSearching ? AftershockAnimationsDefault.GLIDING_LOOK : isPassedout ? AftershockAnimationsDefault.PASSOUT : isWakingup ? AftershockAnimationsDefault.WAKEUP : isNewBorn ? AftershockAnimationsDefault.BIRTH : isScreaming ? AftershockAnimationsDefault.BLOW_TORCH : isDead ? AftershockAnimationsDefault.DEATH : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
+			if (event.getKeyframeData().getSound().matches("takeoff"))
+				if (this.level.isClientSide)
+					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
 			if (event.getKeyframeData().getSound().matches("fire"))
 				if (this.level.isClientSide)
 					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
@@ -158,6 +177,8 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 				new KillLightsTask<>().stopIf(target -> this.isAggressive()).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
 				// Looks at Target
 				new LookAtTarget<>().startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()), new LookAtTargetSink(40, 300),
+				// Strafes players, also handles making sure the entity screams
+				new StrafeScreamTarget<>().startCondition(entity -> !this.isPuking() || !this.isScreaming() || !this.isPassedOut() || !this.isWakingUp()).cooldownFor(entity -> 600),
 				// Walks or runs to Target
 				new MoveToWalkTarget<>().startCondition(entity -> !this.isPuking() || this.getAttckingState() == 0).stopIf(entity -> this.getAttckingState() == 1));
 	}
@@ -175,7 +196,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 						// Radius it will walk around in
 						new SetRandomWalkTarget<>().setRadius(20).speedModifier(1.1f).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
 						// Idles the mob so it doesn't do anything
-						new Idle<>().runFor(entity -> entity.getRandom().nextInt(300, 600)).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp())));
+						new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)).startCondition(entity -> this.isOnGround() || !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> !this.isOnGround() || this.isPassedOut() || this.isWakingUp())));
 	}
 
 	@Override
@@ -210,8 +231,15 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		flyingpathnavigator.setCanOpenDoors(false);
 		flyingpathnavigator.setCanFloat(true);
 		flyingpathnavigator.setCanPassDoors(true);
-//		return this.isOnGround() ? new AzureNavigation(this, worldIn) : flyingpathnavigator;
-		return new AzureNavigation(this, worldIn);
+		return this.isOnGround() ? new AzureNavigation(this, worldIn) : flyingpathnavigator;
+	}
+
+	@Override
+	public void travel(Vec3 movementInput) {
+		if (this.tickCount % 10 == 0)
+			this.refreshDimensions();
+		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
+		super.travel(movementInput);
 	}
 
 	public boolean causeFallDamage(float distance, float damageMultiplier) {
@@ -247,6 +275,9 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		this.entityData.define(DATA_IS_IGNITED, false);
 		this.entityData.define(PASSED_OUT, false);
 		this.entityData.define(WAKING_UP, false);
+		this.entityData.define(LAYEGG, false);
+		this.entityData.define(SEARCHING_FLYING, false);
+		this.entityData.define(TAKING_OFF, false);
 	}
 
 	@Override
@@ -255,6 +286,9 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		compoundTag.putBoolean("ignited", this.isIgnited());
 		compoundTag.putBoolean("passedout", this.isPassedOut());
 		compoundTag.putBoolean("wakingup", this.isWakingUp());
+		compoundTag.putBoolean("layingegg", this.isLayingEgg());
+		compoundTag.putBoolean("issearchingflying", this.isSearchingFlying());
+		compoundTag.putBoolean("istakingoff", this.isTakingOff());
 	}
 
 	@Override
@@ -266,6 +300,28 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			setPassedOutStatus(compoundTag.getBoolean("passedout"));
 		if (compoundTag.contains("wakingup"))
 			setWakingUpStatus(compoundTag.getBoolean("wakingup"));
+		if (compoundTag.contains("layingegg"))
+			setEggStatus(compoundTag.getBoolean("layingegg"));
+		if (compoundTag.contains("issearchingflying"))
+			setSearchingFlyingStatus(compoundTag.getBoolean("issearchingflying"));
+		if (compoundTag.contains("istakingoff"))
+			setTakingOff(compoundTag.getBoolean("istakingoff"));
+	}
+
+	public boolean isTakingOff() {
+		return this.entityData.get(TAKING_OFF);
+	}
+
+	public void setTakingOff(boolean takingoff) {
+		this.entityData.set(TAKING_OFF, Boolean.valueOf(takingoff));
+	}
+
+	public boolean isSearchingFlying() {
+		return this.entityData.get(SEARCHING_FLYING);
+	}
+
+	public void setSearchingFlyingStatus(boolean searching) {
+		this.entityData.set(SEARCHING_FLYING, Boolean.valueOf(searching));
 	}
 
 	public void setWakingUpStatus(boolean passout) {
@@ -282,6 +338,14 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 
 	public boolean isPassedOut() {
 		return this.entityData.get(PASSED_OUT);
+	}
+
+	public void setEggStatus(boolean egg) {
+		this.entityData.set(LAYEGG, Boolean.valueOf(egg));
+	}
+
+	public boolean isLayingEgg() {
+		return this.entityData.get(LAYEGG);
 	}
 
 	public boolean isIgnited() {
@@ -330,6 +394,12 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 	@Override
 	public void tick() {
 		super.tick();
+		var velocityLength = this.getDeltaMovement().horizontalDistance();
+		
+		// Add flame particles when flying
+		if (!this.isOnGround())
+			if (level.isClientSide) 
+				level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 0.0D, 0.0D, 0.0D);
 
 		// Attack animation logic
 		if (attackProgress > 0) {
@@ -348,6 +418,28 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			default -> AttackType.NORMAL;
 			});
 
+		// Taking off logic
+		if (this.isOnGround() && !this.isDeadOrDying() && !this.isPassedOut() && !this.isSearching() && !this.isWakingUp() && !this.isEating() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && !this.isAggressive())
+			takeoffCounter++;
+		if (this.takeoffCounter >= 450)
+			this.setDeltaMovement(0.0F, -1.0F, 0.0F);
+		if (this.takeoffCounter == 490) {
+			this.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 90, 100, false, false));
+			this.setTakingOff(true);
+			this.setSearchingStatus(false);
+			this.setWakingUpStatus(false);
+			this.setPassedOutStatus(false);
+			this.setEggStatus(false);
+		}
+		if (this.takeoffCounter >= 500) {
+			var vec3d2 = new Vec3(this.getX(), 0.0, this.getZ());
+			vec3d2 = vec3d2.normalize().scale(0.4).add(this.getDeltaMovement().scale(0.4));
+			this.setDeltaMovement(vec3d2.x, 1.6F, vec3d2.z);
+			this.getNavigation().createPath(this.blockPosition().relative(getDirection()).above(10), 1);
+			this.takeoffCounter = 0;
+			this.setTakingOff(false);
+		}
+
 		// Naturally spawned logic
 		if (this.isNewBorn() && !this.isDeadOrDying() && !this.isSearching() && !this.isScreaming()) {
 			newbornCounter++;
@@ -360,14 +452,28 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
 
 		// Egg laying logic
-		if (this.isAlive() && !this.isAggressive() && !this.isPassedOut() && !this.isWakingUp())
+		if (this.isOnGround() && this.isAlive() && this.isTakingOff() && !this.isNewBorn() && !this.isAggressive() && !this.isPassedOut() && !this.isWakingUp())
 			layEggCounter++;
-		if (layEggCounter >= 2000) {
+		if (layEggCounter == 1980) {
+			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 100, false, false));
+			this.setEggStatus(true);
+			this.setSearchingStatus(false);
+			this.setWakingUpStatus(false);
+			this.setPassedOutStatus(false);
+		}
+		if (layEggCounter == 2000) {
 			this.level.playSound(null, this.blockPosition(), SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.1f, 0.9f + this.level.random.nextFloat() * 0.2f);
 			var blockState = (BlockState) ModBlocks.GRABOID_EGG.defaultBlockState().setValue(GraboidEggBlock.EGGS, this.random.nextInt(4) + 1);
 			this.level.setBlock(this.blockPosition(), blockState, 3);
 			this.level.gameEvent(GameEvent.BLOCK_PLACE, this.blockPosition(), GameEvent.Context.of(this, blockState));
 			this.layEggCounter = 0;
+		}
+		if (layEggCounter >= 2020) {
+			this.layEggCounter = 0;
+			this.setEggStatus(false);
+			this.setSearchingStatus(false);
+			this.setWakingUpStatus(false);
+			this.setPassedOutStatus(false);
 		}
 
 		// Explode logic
@@ -426,7 +532,6 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		}
 
 		// Searching Logic
-		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		if (!this.isDeadOrDying() && !this.isPassedOut() && !this.isWakingUp() && !this.isEating() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
 			searchingCooldown++;
 			if (searchingCooldown == 10)
@@ -435,6 +540,18 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 				searchingCooldown = -200;
 				this.setSearchingStatus(false);
 			}
+		}
+		if (this.isDeadOrDying()) {
+			this.setSearchingStatus(false);
+			this.setWakingUpStatus(false);
+			this.setPassedOutStatus(false);
+			this.searchingCooldown = 0;
+			this.breakingCounter = 0;
+			this.layEggCounter = 0;
+			this.eatingCounter = 0;
+			this.passoutCounter = 0;
+			this.takeoffCounter = 0;
+			this.wakeupCounter = 0;
 		}
 	}
 }
