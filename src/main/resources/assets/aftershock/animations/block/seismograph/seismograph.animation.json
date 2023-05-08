@@ -1,8 +1,35 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"empty": {
+		"idle": {
 			"loop": true
+		},
+		"moving": {
+			"loop": true,
+			"animation_length": 0.24,
+			"bones": {
+				"paper": {
+					"position": {
+						"vector": ["math.sin(query.anim_time * 60) * 2", 0, 0]
+					}
+				},
+				"needle": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.08": {
+							"vector": [0, 7.5, 0]
+						},
+						"0.16": {
+							"vector": [0, -7.5, 0]
+						},
+						"0.24": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2
