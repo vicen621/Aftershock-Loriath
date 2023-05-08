@@ -19,7 +19,7 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E> {
 	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT));
 
-	protected Function<E, Integer> attackIntervalSupplier = entity -> 200;
+	protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
 
 	@Nullable
 	protected LivingEntity target = null;
@@ -49,7 +49,7 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 		this.target = BrainUtils.getTargetOfEntity(entity);
 
-		return entity.getSensing().hasLineOfSight(this.target);
+		return entity.getSensing().hasLineOfSight(this.target) && !entity.isWithinMeleeAttackRange(this.target);
 	}
 
 	@Override
@@ -60,7 +60,6 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 	@Override
 	protected void stop(E entity) {
 		this.target = null;
-		entity.setScreamingStatus(false);
 	}
 
 	@Override
@@ -70,10 +69,10 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 		if (this.target == null)
 			return;
 
-		if (!entity.getSensing().hasLineOfSight(this.target))
+		if (!entity.getSensing().hasLineOfSight(this.target) || entity.isWithinMeleeAttackRange(this.target))
 			return;
 
-		entity.setScreamingStatus(true);
+		entity.shootFlames(this.target);
 	}
 
 }
