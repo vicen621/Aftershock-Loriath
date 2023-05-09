@@ -27,6 +27,8 @@ public class AmericanDirtDragonEntityRenderer extends GeoEntityRenderer<American
 	public void render(AmericanDirtDragonEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
 		var scaleFactor = 0.3f + ((entity.getGrowth() / 1200) / 2.0f);
 		stack.scale(entity.getGrowth() > 1200 ? 1.0F : scaleFactor, entity.getGrowth() > 1200 ? 1.0F : scaleFactor, entity.getGrowth() > 1200 ? 1.0F : scaleFactor);
+		if (entity.isInSand())
+			stack.translate(0, -0.4, 0);
 		super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
 	}
 }

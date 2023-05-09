@@ -27,6 +27,8 @@ public class AmericanGraboidEntityRenderer extends GeoEntityRenderer<AmericanGra
 	public void render(AmericanGraboidEntity entity, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn) {
 		var scaleFactor = 0.3f + ((entity.getGrowth() / 1200) / 2.0f);
 		stack.scale(entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor);
+		if (entity.isInSand())
+			stack.translate(0, -2.9, 0);
 		super.render(entity, entityYaw, partialTicks, stack, bufferIn, packedLightIn);
 	}
 }

@@ -17,6 +17,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -65,6 +66,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 
 	public AmericanGraboidEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
+		// Stops it from culling/derendering when it's moving off screen, needed due to size.
 		this.noCulling = true;
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 64, this));
@@ -77,10 +79,13 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public void registerControllers(ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "livingController", 5, event -> {
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
+			// Play animation attacking
 			if (getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead)
 				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
+			// Play animation when moving
 			if (event.isMoving() && this.getLastDamageSource() == null)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
+			// Play animation when dead
 			if (isDead)
 				return event.setAndContinue(AftershockAnimationsDefault.DEATH);
 			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
@@ -239,6 +244,13 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public void tick() {
 		super.tick();
 
+		// Adds particle effect to surface when moving so you can track it
+		var velocityLength = this.getDeltaMovement().horizontalDistance();
+		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
+		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying())
+			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
+					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
+		
 		// Turning into Blaster logic
 		if (this.getGrowth() >= 336000)
 			this.removeFreeWill();

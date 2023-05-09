@@ -17,6 +17,7 @@ import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
 import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -196,6 +197,13 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	@Override
 	public void tick() {
 		super.tick();
+
+		// Adds particle effect to surface when moving so you can track it
+		var velocityLength = this.getDeltaMovement().horizontalDistance();
+		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
+		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying())
+			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
+					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
 
 		// Block breaking logic
 		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
