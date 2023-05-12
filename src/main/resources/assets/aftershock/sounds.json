@@ -1,0 +1,8 @@
+{
+	"aftershock.shotgun": {
+		"category": "music", "sounds": [{"name": "aftershock:shotgun"}]
+	},
+	"aftershock.shotgunreload": {
+		"category": "music", "sounds": [{"name": "aftershock:shotgunreload"}]
+	}
+}

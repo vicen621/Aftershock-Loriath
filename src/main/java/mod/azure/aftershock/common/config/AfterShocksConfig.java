@@ -5,6 +5,9 @@ import eu.midnightdust.lib.config.MidnightConfig;
 public class AfterShocksConfig extends MidnightConfig {
 
 	@Entry
+	public static float shotgun_damage = 25F;
+
+	@Entry
 	public static double americandirtdevil_health = 12;
 	@Entry
 	public static int americandirtdevil_exp = 2;

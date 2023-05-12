@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -39,8 +40,8 @@ public class PortableSeismographItem extends Item {
 	public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int slot, boolean selected) {
 		if (level != null)
 			if (entity != null)
-				if (selected && itemStack.getDamageValue() < itemStack.getMaxDamage() - 1)
-					entity.getLevel().getEntitiesOfClass(SoundTrackingEntity.class, new AABB(entity.blockPosition()).inflate(5D, 5D, 5D)).forEach(e -> {
+				if ((((Player)entity).getOffhandItem().is(this) || selected) && itemStack.getDamageValue() < itemStack.getMaxDamage() - 1)
+					entity.getLevel().getEntitiesOfClass(SoundTrackingEntity.class, new AABB(entity.blockPosition()).inflate(15D, 15D, 15D)).forEach(e -> {
 						if (e.walkAnimation.speed() >= 0.15F) {
 							this.soundcounter++;
 							if (this.soundcounter >= 5) {

@@ -24,8 +24,6 @@ public abstract class SoundTrackingEntity extends BaseEntity {
 
 	protected SoundTrackingEntity(EntityType<? extends Monster> entityType, Level level) {
 		super(entityType, level);
-//		this.moveControl = new SandMoveControl(this);
-//		this.navigation = new PathNavigateSand(this, level);
 	}
 
 	// Data Saving
@@ -65,7 +63,7 @@ public abstract class SoundTrackingEntity extends BaseEntity {
 	public void tick() {
 		super.tick();
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
-		this.setInSand((this.getLevel().getBlockState(pos).is(BlockTags.SAND) || this.getLevel().getBlockState(pos.below()).is(BlockTags.SAND)) && this.deathTime < 5);
+		this.setInSand(((this.getLevel().getBlockState(pos).is(BlockTags.SAND) || this.getLevel().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.getLevel().getBlockState(pos).is(BlockTags.DIRT) || this.getLevel().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
 
 		if (this.isDeadOrDying() && !this.isVehicle() && this.getLevel().getBlockState(blockPosition()).is(BlockTags.SAND) || this.getTarget() != null && !this.getTarget().isInWater())
 			if (this.findPossibleSand() != null)
@@ -76,17 +74,16 @@ public abstract class SoundTrackingEntity extends BaseEntity {
 	private Vec3 findPossibleSand() {
 		for (var i = 0; i < 10; ++i) {
 			var blockpos1 = BlockPos.containing(this.getX(), this.getBoundingBox().minY, this.getZ()).offset(this.getRandom().nextInt(20) - 10, this.getRandom().nextInt(6) - 3, this.getRandom().nextInt(20) - 10);
-			if (this.getLevel().getBlockState(blockpos1).getMaterial() == Material.SAND) 
+			if (this.getLevel().getBlockState(blockpos1).getMaterial() == Material.SAND)
 				return new Vec3(blockpos1.getX(), blockpos1.getY(), blockpos1.getZ());
 		}
 		return null;
 	}
 
 	public int getSurface(int x, int y, int z) {
-		BlockPos pos = new BlockPos(x, y, z);
-		while (!level.isEmptyBlock(pos)) {
+		var pos = new BlockPos(x, y, z);
+		while (!level.isEmptyBlock(pos))
 			pos = pos.above();
-		}
 		return pos.getY();
 	}
 
