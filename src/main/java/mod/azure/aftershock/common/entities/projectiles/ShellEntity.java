@@ -1,8 +1,8 @@
 package mod.azure.aftershock.common.entities.projectiles;
 
+import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModItems;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.azurelib.network.packet.EntityPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -170,7 +170,7 @@ public class ShellEntity extends AbstractArrow {
 			if (entity2 instanceof LivingEntity)
 				((LivingEntity) entity2).setLastHurtMob(entity);
 		}
-		if (entity.hurt(damageSource2, AfterShocksConfig.shotgun_damage)) {
+		if (entity.hurt(damageSource2, AftershockMod.config.shotgun_damage)) {
 			if (entity instanceof LivingEntity) {
 				var livingEntity = (LivingEntity) entity;
 				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {

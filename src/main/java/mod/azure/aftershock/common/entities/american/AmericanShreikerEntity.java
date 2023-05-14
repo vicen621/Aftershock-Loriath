@@ -5,7 +5,6 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
 import mod.azure.aftershock.common.entities.tasks.EatFoodTask;
@@ -77,7 +76,7 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
-		this.xpReward = AfterShocksConfig.americanshreiker_exp;
+		this.xpReward = AftershockMod.config.americanshreiker_exp;
 	}
 
 	// Animation logic
@@ -189,7 +188,7 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 
 	// Mob stats
 	public static AttributeSupplier.Builder createMobAttributes() {
-		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.americanshreiker_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.americanshreiker_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
+		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AftershockMod.config.americanshreiker_health).add(Attributes.ATTACK_DAMAGE, AftershockMod.config.americanshreiker_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
 	}
 
 	// Mob Navigation

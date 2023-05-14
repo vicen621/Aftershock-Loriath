@@ -5,7 +5,8 @@ import java.util.List;
 
 import com.mojang.serialization.Codec;
 
-import eu.midnightdust.lib.config.MidnightConfig;
+import dev.toma.configuration.Configuration;
+import dev.toma.configuration.config.format.ConfigFormats;
 import mod.azure.aftershock.common.blocks.GraboidEggBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlockEntity;
@@ -57,6 +58,7 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 
 public class AftershockMod implements ModInitializer {
 
+	public static AfterShocksConfig config;
 	public static final String MODID = "aftershock";
 	public static final TagKey<Block> DESTRUCTIBLE_LIGHT = TagKey.create(Registries.BLOCK, AftershockMod.modResource("destructible_light"));
 	public static final TagKey<Block> WEAK_BLOCKS = TagKey.create(Registries.BLOCK, AftershockMod.modResource("weak_block"));
@@ -96,7 +98,7 @@ public class AftershockMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		MidnightConfig.init(MODID, AfterShocksConfig.class);
+		config = Configuration.registerConfig(AfterShocksConfig.class, ConfigFormats.json()).getConfigInstance();
 		EntityDataSerializers.registerSerializer(ALIEN_ATTACK_TYPE);
 		AftershockSensors.initialize();
 		AftershockMemoryTypes.initialize();

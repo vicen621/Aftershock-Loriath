@@ -5,9 +5,9 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
+import mod.azure.aftershock.common.entities.tasks.SoundPanic;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
 import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.ai.pathing.AzureNavigation;
@@ -64,7 +64,7 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
-		this.xpReward = AfterShocksConfig.americandirtdevil_exp;
+		this.xpReward = AftershockMod.config.americandirtdevil_exp;
 	}
 
 	// Animation logic
@@ -100,6 +100,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	@Override
 	public BrainActivityGroup<AmericanDirtDragonEntity> getCoreTasks() {
 		return BrainActivityGroup.coreTasks(
+				// Run from sounds
+				new SoundPanic(1.5F),
 				// Looks at Target
 				new LookAtTarget<>(), new LookAtTargetSink(40, 300),
 				// Walks or runs to Target
@@ -141,7 +143,7 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 
 	// Mob stats
 	public static AttributeSupplier.Builder createMobAttributes() {
-		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.americandirtdevil_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.americandirtdevil_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
+		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AftershockMod.config.americandirtdevil_health).add(Attributes.ATTACK_DAMAGE, AftershockMod.config.americandirtdevil_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
 	}
 
 	// Mob Navigation
@@ -201,7 +203,7 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		// Adds particle effect to surface when moving so you can track it
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
-		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying())
+		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying() && this.isInSand())
 			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
 					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
 

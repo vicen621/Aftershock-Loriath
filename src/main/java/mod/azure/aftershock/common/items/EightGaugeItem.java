@@ -10,7 +10,6 @@ import mod.azure.aftershock.client.render.EightGaugeRender;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModItems;
 import mod.azure.aftershock.common.AftershockMod.ModSounds;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.projectiles.ShellEntity;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
@@ -53,10 +52,10 @@ public class EightGaugeItem extends BaseGunItem {
 						if (result.getEntity()instanceof LivingEntity livingEntity) {
 							livingEntity.invulnerableTime = 0;
 							livingEntity.setDeltaMovement(0, 0, 0);
-							livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), AfterShocksConfig.shotgun_damage);
+							livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), AftershockMod.config.shotgun_damage);
 							livingEntity.invulnerableTime = 0;
 							livingEntity.setDeltaMovement(0, 0, 0);
-							livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), AfterShocksConfig.shotgun_damage);
+							livingEntity.hurt(playerentity.damageSources().playerAttack(playerentity), AftershockMod.config.shotgun_damage);
 						}
 					} else {
 						var bullet = createArrow(worldIn, stack, playerentity);

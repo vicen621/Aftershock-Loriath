@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModBlocks;
 import mod.azure.aftershock.common.blocks.GraboidEggBlock;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.nav.BlasterFlyControl;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
@@ -99,7 +98,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
-		this.xpReward = AfterShocksConfig.americanblaster_exp;
+		this.xpReward = AftershockMod.config.americanblaster_exp;
 		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
 	}
 
@@ -221,7 +220,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 
 	// Mob stats
 	public static AttributeSupplier.Builder createMobAttributes() {
-		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.americanblaster_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.americanblaster_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
+		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AftershockMod.config.americanblaster_health).add(Attributes.ATTACK_DAMAGE, AftershockMod.config.americanblaster_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
 	}
 
 	// Mob Navigation
@@ -395,10 +394,10 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 	public void tick() {
 		super.tick();
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
-		
+
 		// Add flame particles when flying
 		if (!this.isOnGround())
-			if (level.isClientSide) 
+			if (level.isClientSide)
 				level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 0.0D, 0.0D, 0.0D);
 
 		// Attack animation logic
@@ -434,7 +433,11 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		if (this.takeoffCounter >= 500) {
 			var vec3d2 = new Vec3(this.getX(), 0.0, this.getZ());
 			vec3d2 = vec3d2.normalize().scale(0.4).add(this.getDeltaMovement().scale(0.4));
-			this.setDeltaMovement(vec3d2.x, 1.6F, vec3d2.z);
+			this.setDeltaMovement(this.getDeltaMovement().x + (switch (this.getDirection()) {
+			case WEST -> -0.5F;
+			case EAST -> 0.5F;
+			default -> 0.0F;
+			}), 1.6F, this.getDeltaMovement().z);
 			this.getNavigation().createPath(this.blockPosition().relative(getDirection()).above(10), 1);
 			this.takeoffCounter = 0;
 			this.setTakingOff(false);

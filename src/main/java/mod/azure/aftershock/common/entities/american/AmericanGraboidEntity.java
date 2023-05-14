@@ -5,7 +5,6 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
-import mod.azure.aftershock.common.config.AfterShocksConfig;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
@@ -21,11 +20,11 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -71,7 +70,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		// Registers sound listening settings
 		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 64, this));
 		// Sets exp drop amount
-		this.xpReward = AfterShocksConfig.americangraboid_exp;
+		this.xpReward = AftershockMod.config.americangraboid_exp;
 	}
 
 	// Animation logic
@@ -127,7 +126,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 						// Radius it will walk around in
 						new SetRandomWalkTarget<>().setRadius(20).speedModifier(1.1f),
 						// Idles the mob so it doesn't do anything
-						new Idle<>().runFor(entity -> entity.getRandom().nextInt(300, 600))));
+						new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60))));
 	}
 
 	@Override
@@ -150,7 +149,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 
 	// Mob stats
 	public static AttributeSupplier.Builder createMobAttributes() {
-		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AfterShocksConfig.americangraboid_health).add(Attributes.ATTACK_DAMAGE, AfterShocksConfig.americangraboid_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
+		return LivingEntity.createLivingAttributes().add(Attributes.FOLLOW_RANGE, 25.0D).add(Attributes.MAX_HEALTH, AftershockMod.config.americangraboid_health).add(Attributes.ATTACK_DAMAGE, AftershockMod.config.americangraboid_damage).add(Attributes.MOVEMENT_SPEED, 0.25D).add(Attributes.ATTACK_KNOCKBACK, 0.0D);
 	}
 
 	// Mob Navigation
@@ -174,13 +173,13 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 			var newEntity2 = growInto();
 			if (newEntity == null || newEntity1 == null || newEntity2 == null)
 				return;
-			newEntity.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
-			newEntity1.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
+			newEntity.moveTo(entity.blockPosition().east(), entity.getYRot(), entity.getXRot());
+			newEntity1.moveTo(entity.blockPosition().west(), entity.getYRot(), entity.getXRot());
 			newEntity2.moveTo(entity.blockPosition(), entity.getYRot(), entity.getXRot());
 			world.addFreshEntity(newEntity);
 			world.addFreshEntity(newEntity1);
 			world.addFreshEntity(newEntity2);
-			entity.remove(Entity.RemovalReason.DISCARDED);
+			entity.kill();
 		}
 	}
 
@@ -221,7 +220,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 
 	@Override
 	public int getArmorValue() {
-		return AfterShocksConfig.americangraboid_armor;
+		return AftershockMod.config.americangraboid_armor;
 	}
 
 	// Checks if should be removed when far way.
@@ -247,10 +246,11 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		// Adds particle effect to surface when moving so you can track it
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
-		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying())
+		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying() && this.isInSand())
 			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
 					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
-		
+		this.setInSand(this.getGrowth() < 336000 && ((this.getLevel().getBlockState(pos).is(BlockTags.SAND) || this.getLevel().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.getLevel().getBlockState(pos).is(BlockTags.DIRT) || this.getLevel().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
+
 		// Turning into Blaster logic
 		if (this.getGrowth() >= 336000)
 			this.removeFreeWill();
