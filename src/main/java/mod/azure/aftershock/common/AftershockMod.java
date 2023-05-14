@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.mojang.serialization.Codec;
 
-import dev.toma.configuration.Configuration;
-import dev.toma.configuration.config.format.ConfigFormats;
 import mod.azure.aftershock.common.blocks.GraboidEggBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlock;
 import mod.azure.aftershock.common.blocks.SeismographBlockEntity;
@@ -27,6 +25,8 @@ import mod.azure.aftershock.common.structures.GraniteEggStructure;
 import mod.azure.aftershock.common.structures.RedSandEggStructure;
 import mod.azure.aftershock.common.structures.SandEggStructure;
 import mod.azure.azurelib.AzureLib;
+import mod.azure.azurelib.AzureLibMod;
+import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.items.AzureSpawnEgg;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -98,7 +98,7 @@ public class AftershockMod implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		config = Configuration.registerConfig(AfterShocksConfig.class, ConfigFormats.json()).getConfigInstance();
+		config = AzureLibMod.registerConfig(AfterShocksConfig.class, ConfigFormats.json()).getConfigInstance();
 		EntityDataSerializers.registerSerializer(ALIEN_ATTACK_TYPE);
 		AftershockSensors.initialize();
 		AftershockMemoryTypes.initialize();

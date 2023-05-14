@@ -1,8 +1,8 @@
 package mod.azure.aftershock.common.config;
 
-import dev.toma.configuration.config.Config;
-import dev.toma.configuration.config.Configurable;
 import mod.azure.aftershock.common.AftershockMod;
+import mod.azure.azurelib.config.Config;
+import mod.azure.azurelib.config.Configurable;
 
 @Config(id = AftershockMod.MODID)
 public class AfterShocksConfig {
