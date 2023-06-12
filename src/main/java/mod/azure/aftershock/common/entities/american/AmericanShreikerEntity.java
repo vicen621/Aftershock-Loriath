@@ -141,12 +141,11 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 	public BrainActivityGroup<AmericanShreikerEntity> getCoreTasks() {
 		return BrainActivityGroup.coreTasks(
 				// Breaks lights as they are heat sources
-				new KillLightsTask<>().stopIf(target -> this.isAggressive()), 
+				new KillLightsTask<>().stopIf(target -> this.isAggressive()),
 				// Looks at Target
-				new LookAtTarget<>(), 
-				new LookAtTargetSink(40, 300), 
+				new LookAtTarget<>(), new LookAtTargetSink(40, 300),
 				// Strafes players, also handles making sure the entity screams
-				new StrafeScreamTarget<>().startCondition(entity -> !this.isPuking() || !this.isScreaming()).cooldownFor(entity -> 600), 
+				new StrafeScreamTarget<>().startCondition(entity -> !this.isPuking() || !this.isScreaming()).cooldownFor(entity -> 600),
 				// Walks or runs to Target
 				new MoveToWalkTarget<>().startCondition(entity -> !this.isPuking()));
 	}
@@ -155,15 +154,14 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 	public BrainActivityGroup<AmericanShreikerEntity> getIdleTasks() {
 		return BrainActivityGroup.idleTasks(
 				// Eats food items/blocks
-				new EatFoodTask<AmericanShreikerEntity>(0), 
-				new FirstApplicableBehaviour<AmericanShreikerEntity>(
+				new EatFoodTask<AmericanShreikerEntity>(20), new FirstApplicableBehaviour<AmericanShreikerEntity>(
 						// Target or attack/ alerts other entities of this type in range of target.
-						new TargetOrRetaliate<>().alertAlliesWhen((mob, entity) -> this.isScreaming()), 
+						new TargetOrRetaliate<>().alertAlliesWhen((mob, entity) -> this.isScreaming()),
 						// Chooses random look target
 						new SetRandomLookTarget<>()),
 				new OneRandomBehaviour<>(
 						// Radius it will walk around in
-						new SetRandomWalkTarget<>().setRadius(20).speedModifier(1.1f), 
+						new SetRandomWalkTarget<>().setRadius(20).speedModifier(1.1f),
 						// Idles the mob so it doesn't do anything
 						new Idle<>().runFor(entity -> entity.getRandom().nextInt(300, 600))));
 	}
@@ -174,7 +172,7 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 				// Removes entity from being a target.
 				new InvalidateAttackTarget<>().invalidateIf((target, entity) -> !target.isAlive() || !entity.hasLineOfSight(target)),
 				// Moves to traget to attack
-				new SetWalkTargetToAttackTarget<>().speedMod(1.25F).startCondition(entity -> !this.isPuking()), 
+				new SetWalkTargetToAttackTarget<>().speedMod(1.25F).startCondition(entity -> !this.isPuking()),
 				// Attacks the target if in range and is grown enough
 				new AnimatableMeleeAttack<>(5).startCondition(entity -> this.getGrowth() >= 1200));
 	}
@@ -286,6 +284,7 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 		if (this.isPuking() && !this.isDeadOrDying() && !this.isNewBorn() && !this.isScreaming()) {
 			pukingCounter++;
 			this.setSearchingStatus(false);
+			this.setEatingStatus(false);
 			if (this.pukingCounter >= 120) {
 				this.setPukingStatus(false);
 				this.playSound(SoundEvents.DONKEY_EAT, 1.0f, 1.0f);

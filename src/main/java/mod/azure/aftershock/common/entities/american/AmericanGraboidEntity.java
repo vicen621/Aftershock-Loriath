@@ -244,11 +244,13 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		super.tick();
 
 		// Adds particle effect to surface when moving so you can track it
-		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
 		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying() && this.isInSand())
-			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
-					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
+			if (level.isClientSide && this.getDeltaMovement().horizontalDistance() != 0.0) {
+				this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+				this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
+			}
+		// Sets the Graboid in the blocks below if it they match the tag checks and only if it's not in the part of life it's not beached to give birth
 		this.setInSand(this.getGrowth() < 336000 && ((this.getLevel().getBlockState(pos).is(BlockTags.SAND) || this.getLevel().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.getLevel().getBlockState(pos).is(BlockTags.DIRT) || this.getLevel().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
 
 		// Turning into Blaster logic
@@ -259,7 +261,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
 			breakingCounter++;
 			if (breakingCounter > 10)
-				for (BlockPos testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
+				for (var testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
 					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
 						if (!level.isClientSide)
 							this.level.removeBlock(testPos, false);

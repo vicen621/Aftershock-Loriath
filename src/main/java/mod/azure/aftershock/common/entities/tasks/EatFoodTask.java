@@ -67,12 +67,14 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 
 		if (!itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2)) {
 			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(itemLocation.stream().findFirst().get().blockPosition(), 1.5F, 0));
+			entity.setEatingStatus(false);
+		}
+		if (itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.5)) {
 			entity.setEatingStatus(true);
 		}
 		if (itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2)) {
 			if (entity instanceof AmericanShreikerEntity shriker)
 				shriker.setPukingStatus(true);
-			entity.setEatingStatus(false);
 			entity.heal(2.5F);
 			if (entity instanceof AmericanBlasterEntity blaster)
 				blaster.eatingCounter++;

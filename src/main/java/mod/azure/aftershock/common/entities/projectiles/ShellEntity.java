@@ -17,6 +17,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -27,7 +28,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -150,7 +150,7 @@ public class ShellEntity extends AbstractArrow {
 		super.onHitBlock(blockHitResult);
 		if (!this.level.isClientSide)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		if (level.getBlockState(blockHitResult.getBlockPos()).getBlock() instanceof PointedDripstoneBlock)
+		if (level.getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.SAND) || level.getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.DIRT))
 			level.destroyBlock(blockHitResult.getBlockPos(), true);
 		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
 	}
