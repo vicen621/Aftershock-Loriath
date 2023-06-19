@@ -42,7 +42,7 @@ public class KillLightsTask<E extends BaseEntity> extends ExtendedBehaviour<E> {
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 		var lightSourceLocation = entity.getBrain().getMemory(SBLMemoryTypes.NEARBY_BLOCKS.get()).orElse(null);
 		var yDiff = Mth.abs(entity.getBlockY() - lightSourceLocation.stream().findFirst().get().getFirst().getY());
-		var canGrief = entity.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+		var canGrief = entity.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
 		return yDiff < 4 && !entity.isAggressive() && canGrief;
 	}
 
@@ -58,7 +58,7 @@ public class KillLightsTask<E extends BaseEntity> extends ExtendedBehaviour<E> {
 			if (lightSourceLocation.stream().findFirst().get().getFirst().closerToCenterThan(entity.position(), 2.6))
 				entity.swing(InteractionHand.MAIN_HAND);
 			if (lightSourceLocation.stream().findFirst().get().getFirst().closerToCenterThan(entity.position(), 1.2)) {
-				var world = entity.level;
+				var world = entity.level();
 				var random = entity.getRandom().nextGaussian();
 				var pos = lightSourceLocation.stream().findFirst().get().getFirst();
 				world.destroyBlock(lightSourceLocation.stream().findFirst().get().getFirst(), true, null, 512);

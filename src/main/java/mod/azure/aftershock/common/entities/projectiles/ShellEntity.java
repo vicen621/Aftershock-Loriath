@@ -116,10 +116,10 @@ public class ShellEntity extends AbstractArrow {
 		++this.ticksInAir;
 		if (this.ticksInAir >= 40)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		if (this.level.isClientSide) {
+		if (this.level().isClientSide) {
 			double d2 = this.getX() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
 			double f2 = this.getZ() + (this.random.nextDouble()) * (double) this.getBbWidth() * 0.5D;
-			this.level.addParticle(ParticleTypes.SMOKE, true, d2, this.getY(), f2, 0, 0, 0);
+			this.level().addParticle(ParticleTypes.SMOKE, true, d2, this.getY(), f2, 0, 0, 0);
 		}
 		if (getOwner()instanceof Player owner)
 			setYRot(entityData.get(FORCED_YAW));
@@ -147,19 +147,19 @@ public class ShellEntity extends AbstractArrow {
 
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
-		super.onHitBlock(blockHitResult);
-		if (!this.level.isClientSide)
+		if (!this.level().isClientSide)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		if (level.getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.SAND) || level.getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.DIRT))
-			level.destroyBlock(blockHitResult.getBlockPos(), true);
+		if (level().getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.SAND) || level().getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.DIRT))
+			level().destroyBlock(blockHitResult.getBlockPos(), true);
 		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
+		super.onHitBlock(blockHitResult);
 	}
 
 	@Override
 	protected void onHitEntity(EntityHitResult entityHitResult) {
 		var entity = entityHitResult.getEntity();
 		if (entityHitResult.getType() != HitResult.Type.ENTITY || !((EntityHitResult) entityHitResult).getEntity().is(entity))
-			if (!this.level.isClientSide)
+			if (!this.level().isClientSide)
 				this.remove(Entity.RemovalReason.DISCARDED);
 		var entity2 = this.getOwner();
 		DamageSource damageSource2;
@@ -173,7 +173,7 @@ public class ShellEntity extends AbstractArrow {
 		if (entity.hurt(damageSource2, AftershockMod.config.shotgun_damage)) {
 			if (entity instanceof LivingEntity) {
 				var livingEntity = (LivingEntity) entity;
-				if (!this.level.isClientSide && entity2 instanceof LivingEntity) {
+				if (!this.level().isClientSide && entity2 instanceof LivingEntity) {
 					EnchantmentHelper.doPostHurtEffects(livingEntity, entity2);
 					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity2, livingEntity);
 				}
@@ -181,7 +181,7 @@ public class ShellEntity extends AbstractArrow {
 				if (entity2 != null && livingEntity != entity2 && livingEntity instanceof Player && entity2 instanceof ServerPlayer && !this.isSilent())
 					((ServerPlayer) entity2).connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
 			}
-		} else if (!this.level.isClientSide)
+		} else if (!this.level().isClientSide)
 			this.remove(Entity.RemovalReason.DISCARDED);
 	}
 

@@ -17,18 +17,15 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -46,10 +43,6 @@ import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraft.world.level.gameevent.EntityPositionSource;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -73,8 +66,6 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 
 	public AmericanShreikerEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
-		// Registers sound listening settings
-		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
 		this.xpReward = AftershockMod.config.americanshreiker_exp;
 	}
@@ -104,17 +95,17 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			return event.setAndContinue(isDead ? AftershockAnimationsDefault.DEATH : isHurt ? AftershockAnimationsDefault.HURT : isEating ? AftershockAnimationsDefault.GRAB : isPuking ? AftershockAnimationsDefault.PUKE : isScreaming ? AftershockAnimationsDefault.SCREAM : isNewBorn ? AftershockAnimationsDefault.SPAWN : isSearching ? AftershockAnimationsDefault.LOOK : isMolting ? AftershockAnimationsDefault.MOLT : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("puking"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ALLAY_HURT, SoundSource.HOSTILE, 0.75F, 0.1F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ALLAY_HURT, SoundSource.HOSTILE, 0.75F, 0.1F, true);
 			if (event.getKeyframeData().getSound().matches("screaming"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_HURT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_HURT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
 			if (event.getKeyframeData().getSound().matches("looking"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_AMBIENT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_AMBIENT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
 			if (event.getKeyframeData().getSound().matches("dying"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_DEATH, SoundSource.HOSTILE, 1.25F, 0.3F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_DEATH, SoundSource.HOSTILE, 1.25F, 0.3F, true);
 		}));
 	}
 
@@ -205,17 +196,17 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 	@Override
 	public LivingEntity growInto() {
 		// Grow into American Blaster
-		var entity = ModMobs.AMERICAN_BLASTER.create(level);
+		var entity = ModMobs.AMERICAN_BLASTER.create(level());
 		if (hasCustomName())
 			entity.setCustomName(this.getCustomName());
 		entity.setNewBornStatus(true);
 		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
-		var areaEffectCloudEntity = new AreaEffectCloud(this.level, this.getX(), this.getY() + 1, this.getZ());
+		var areaEffectCloudEntity = new AreaEffectCloud(this.level(), this.getX(), this.getY() + 1, this.getZ());
 		areaEffectCloudEntity.setRadius(1.0F);
 		areaEffectCloudEntity.setDuration(20);
 		areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
 		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
-		entity.level.addFreshEntity(areaEffectCloudEntity);
+		entity.level().addFreshEntity(areaEffectCloudEntity);
 		return entity;
 	}
 
@@ -232,11 +223,6 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 		if (spawnReason == MobSpawnType.COMMAND || spawnReason == MobSpawnType.SPAWN_EGG)
 			setGrowth(1250);
 		return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
-	}
-
-	@Override
-	public void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, Entity var5, Entity var6, float var7) {
-		return;
 	}
 
 	// Mob logic done each tick
@@ -288,17 +274,17 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			if (this.pukingCounter >= 120) {
 				this.setPukingStatus(false);
 				this.playSound(SoundEvents.DONKEY_EAT, 1.0f, 1.0f);
-				var entity = new AmericanShreikerEntity(ModMobs.AMERICAN_SHREIKER, this.level);
+				var entity = new AmericanShreikerEntity(ModMobs.AMERICAN_SHREIKER, this.level());
 				entity.moveTo(this.blockPosition(), this.getYRot(), this.getXRot());
-				this.level.addFreshEntity(entity);
+				this.level().addFreshEntity(entity);
 				entity.setNewBornStatus(true);
 				entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
-				var areaEffectCloudEntity = new AreaEffectCloud(this.level, this.getX(), this.getY() + 1, this.getZ());
+				var areaEffectCloudEntity = new AreaEffectCloud(this.level(), this.getX(), this.getY() + 1, this.getZ());
 				areaEffectCloudEntity.setRadius(0.5F);
 				areaEffectCloudEntity.setDuration(10);
 				areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
 				areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
-				entity.level.addFreshEntity(areaEffectCloudEntity);
+				entity.level().addFreshEntity(areaEffectCloudEntity);
 				pukingCounter = 0;
 			}
 		}
@@ -306,12 +292,12 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 		// Attack animation logic
 		if (attackProgress > 0) {
 			attackProgress--;
-			if (!level.isClientSide && attackProgress <= 0)
+			if (!level().isClientSide && attackProgress <= 0)
 				setCurrentAttackType(AttackType.NONE);
 		}
 		if (attackProgress == 0 && swinging)
 			attackProgress = 10;
-		if (!level.isClientSide && getCurrentAttackType() == AttackType.NONE)
+		if (!level().isClientSide && getCurrentAttackType() == AttackType.NONE)
 			setCurrentAttackType(switch (random.nextInt(5)) {
 			case 0 -> AttackType.NORMAL;
 			case 1 -> AttackType.BITE;
@@ -321,17 +307,17 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			});
 
 		// Block breaking logic
-		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
+		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
 			breakingCounter++;
 			if (breakingCounter > 10)
 				for (BlockPos testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
-					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
-						if (!level.isClientSide)
-							this.level.removeBlock(testPos, false);
+					if (level().getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level().getBlockState(testPos).isAir()) {
+						if (!level().isClientSide)
+							this.level().removeBlock(testPos, false);
 						if (this.swingingArm != null)
 							this.swing(swingingArm);
 						breakingCounter = -90;
-						if (level.isClientSide())
+						if (level().isClientSide())
 							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
 					}
 				}

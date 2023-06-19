@@ -37,11 +37,11 @@ public abstract class HeldItemRendererMixin {
 		var clientPlayerEntity = this.minecraft.player;
 		var itemStack = clientPlayerEntity.getMainHandItem();
 		var itemStack2 = clientPlayerEntity.getOffhandItem();
-		if ((this.mainHandItem.getItem() instanceof EightGaugeItem || this.mainHandItem.getItem() instanceof PortableSeismographItem) && (itemStack.getItem() instanceof EightGaugeItem || itemStack.getItem() instanceof PortableSeismographItem) && ItemStack.isSame(mainHandItem, itemStack)) {
+		if ((this.mainHandItem.getItem() instanceof EightGaugeItem || this.mainHandItem.getItem() instanceof PortableSeismographItem) && (itemStack.getItem() instanceof EightGaugeItem || itemStack.getItem() instanceof PortableSeismographItem) && ItemStack.isSameItem(mainHandItem, itemStack)) {
 			this.mainHandHeight = 1;
 			this.mainHandItem = itemStack;
 		}
-		if ((this.offHandItem.getItem() instanceof EightGaugeItem || this.offHandItem.getItem() instanceof PortableSeismographItem) && (itemStack2.getItem() instanceof EightGaugeItem || itemStack2.getItem() instanceof PortableSeismographItem) && ItemStack.isSame(offHandItem, itemStack2)) {
+		if ((this.offHandItem.getItem() instanceof EightGaugeItem || this.offHandItem.getItem() instanceof PortableSeismographItem) && (itemStack2.getItem() instanceof EightGaugeItem || itemStack2.getItem() instanceof PortableSeismographItem) && ItemStack.isSameItem(offHandItem, itemStack2)) {
 			this.offHandHeight = 1;
 			this.offHandItem = itemStack2;
 		}

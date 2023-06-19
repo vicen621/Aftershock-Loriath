@@ -38,8 +38,10 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
@@ -80,21 +82,7 @@ public class AftershockMod implements ModInitializer {
 			return AttackType;
 		}
 	};
-	public static final CreativeModeTab ITEMS_GROUP = FabricItemGroup.builder(AftershockMod.modResource("items")).icon(() -> new ItemStack(ModItems.SEIMOGRAPH_ITEM)).displayItems((context, entries) -> {
-		entries.accept(ModItems.GRABOID_EGG_ITEM);
-		entries.accept(ModItems.SEIMOGRAPH_ITEM);
-		entries.accept(ModItems.PORTABLE_SEIMOGRAPH_ITEM);
-		entries.accept(ModItems.AMERICAN_DIRT_DRAGON_SPAWNEGG);
-		entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
-		entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
-		entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
-//		entries.accept(ModItems.TROPICAL_DIRT_DRAGON_SPAWNEGG);
-//		entries.accept(ModItems.TROPICAL_GRABOID_SPAWNEGG);
-//		entries.accept(ModItems.TROPICAL_SHREIKER_SPAWNEGG);
-//		entries.accept(ModItems.TROPICAL_BLASTER_SPAWNEGG);
-		entries.accept(ModItems.EIGHTGAUGE);
-		entries.accept(ModItems.SHOTGUN_SHELL);
-	}).build();
+	public static final ResourceKey<CreativeModeTab> ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB, AftershockMod.modResource("items"));
 
 	@Override
 	public void onInitialize() {
@@ -106,6 +94,23 @@ public class AftershockMod implements ModInitializer {
 		ModItems.initialize();
 		ModBlocks.initialize();
 		ModMobs.initialize();
+		Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, ITEMS_GROUP, FabricItemGroup.builder().icon(() -> new ItemStack(ModItems.SEIMOGRAPH_ITEM)) // icon
+				.title(Component.translatable("itemGroup.aftershock.items")) // title
+				.displayItems((context, entries) -> {
+					entries.accept(ModItems.GRABOID_EGG_ITEM);
+					entries.accept(ModItems.SEIMOGRAPH_ITEM);
+					entries.accept(ModItems.PORTABLE_SEIMOGRAPH_ITEM);
+					entries.accept(ModItems.AMERICAN_DIRT_DRAGON_SPAWNEGG);
+					entries.accept(ModItems.AMERICAN_GRABOID_SPAWNEGG);
+					entries.accept(ModItems.AMERICAN_SHREIKER_SPAWNEGG);
+					entries.accept(ModItems.AMERICAN_BLASTER_SPAWNEGG);
+//					entries.accept(ModItems.TROPICAL_DIRT_DRAGON_SPAWNEGG);
+//					entries.accept(ModItems.TROPICAL_GRABOID_SPAWNEGG);
+//					entries.accept(ModItems.TROPICAL_SHREIKER_SPAWNEGG);
+//					entries.accept(ModItems.TROPICAL_BLASTER_SPAWNEGG);
+					entries.accept(ModItems.EIGHTGAUGE);
+					entries.accept(ModItems.SHOTGUN_SHELL);
+				}).build()); // build() no longer registers by itself
 		ModStructures.registerStructureFeatures();
 		AzureLib.initialize();
 		PacketHandler.registerMessages();
@@ -119,7 +124,7 @@ public class AftershockMod implements ModInitializer {
 
 		public static List<EntityType<? extends Entity>> ENTITY_TYPES = new LinkedList();
 		public static List<EntityType<? extends Entity>> ENTITY_THAT_USE_ITEM_RENDERS = new LinkedList();
-		
+
 		public final static EntityType<AmericanBlasterEntity> AMERICAN_BLASTER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_blaster"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanBlasterEntity::new).dimensions(EntityDimensions.scalable(1.3f, 1.15F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
 
 		public final static EntityType<AmericanShreikerEntity> AMERICAN_SHREIKER = Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource("american_shreiker"), FabricEntityTypeBuilder.create(MobCategory.MONSTER, AmericanShreikerEntity::new).dimensions(EntityDimensions.scalable(1.0f, 1.0F)).trackRangeBlocks(90).trackedUpdateRate(1).build());
@@ -143,14 +148,14 @@ public class AftershockMod implements ModInitializer {
 		private static <T extends Entity> EntityType<T> projectile(EntityType.EntityFactory<T> factory, String id) {
 			EntityType<T> type = FabricEntityTypeBuilder.<T>create(MobCategory.MISC, factory).dimensions(new EntityDimensions(0.5F, 0.5F, true)).disableSummon().spawnableFarFromPlayer().trackRangeBlocks(90).trackedUpdateRate(1).build();
 
-			Registry.register(BuiltInRegistries.ENTITY_TYPE,AftershockMod.modResource(id), type);
+			Registry.register(BuiltInRegistries.ENTITY_TYPE, AftershockMod.modResource(id), type);
 
 			ENTITY_TYPES.add(type);
 			ENTITY_THAT_USE_ITEM_RENDERS.add(type);
 
 			return type;
 		}
-		
+
 		public static void initialize() {
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_BLASTER, AmericanBlasterEntity.createMobAttributes());
 			FabricDefaultAttributeRegistry.register(ModMobs.AMERICAN_SHREIKER, AmericanShreikerEntity.createMobAttributes());

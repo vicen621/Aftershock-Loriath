@@ -5,6 +5,7 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
+import mod.azure.aftershock.common.entities.base.AfterShockVibrationUser;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
@@ -14,7 +15,6 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -39,8 +39,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -67,8 +65,8 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		super(entityType, level);
 		// Stops it from culling/derendering when it's moving off screen, needed due to size.
 		this.noCulling = true;
-		// Registers sound listening settings
-		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 64, this));
+		// Sets the speed and range of vibrations
+		this.vibrationUser = new AfterShockVibrationUser(this, 1.5F, 48);
 		// Sets exp drop amount
 		this.xpReward = AftershockMod.config.americangraboid_exp;
 	}
@@ -166,7 +164,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 
 	@Override
 	public void growUp(LivingEntity entity) {
-		var world = entity.level;
+		var world = entity.level();
 		if (!world.isClientSide() && !this.isAlbino()) {
 			var newEntity = growInto();
 			var newEntity1 = growInto();
@@ -186,18 +184,18 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	@Override
 	public LivingEntity growInto() {
 		// Grow into 3 American Shreikers
-		var entity = ModMobs.AMERICAN_SHREIKER.create(level);
+		var entity = ModMobs.AMERICAN_SHREIKER.create(level());
 		if (hasCustomName())
 			entity.setCustomName(this.getCustomName());
 		entity.setNewBornStatus(true);
 		entity.setGrowth(0);
 		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
-		var areaEffectCloudEntity = new AreaEffectCloud(this.level, this.getX(), this.getY() + 1, this.getZ());
+		var areaEffectCloudEntity = new AreaEffectCloud(this.level(), this.getX(), this.getY() + 1, this.getZ());
 		areaEffectCloudEntity.setRadius(1.0F);
 		areaEffectCloudEntity.setDuration(20);
 		areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
 		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
-		entity.level.addFreshEntity(areaEffectCloudEntity);
+		entity.level().addFreshEntity(areaEffectCloudEntity);
 		return this.isAlbino() ? null : entity;
 	}
 
@@ -245,30 +243,30 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 
 		// Adds particle effect to surface when moving so you can track it
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
-		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying() && this.isInSand())
-			if (level.isClientSide && this.getDeltaMovement().horizontalDistance() != 0.0) {
-				this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-				this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
+		if (level().getBlockState(pos).isSolidRender(level(), pos) && !this.isDeadOrDying() && this.isInSand())
+			if (level().isClientSide && this.getDeltaMovement().horizontalDistance() != 0.0) {
+				this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level().getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+				this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, level().getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
 			}
 		// Sets the Graboid in the blocks below if it they match the tag checks and only if it's not in the part of life it's not beached to give birth
-		this.setInSand(this.getGrowth() < 336000 && ((this.getLevel().getBlockState(pos).is(BlockTags.SAND) || this.getLevel().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.getLevel().getBlockState(pos).is(BlockTags.DIRT) || this.getLevel().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
+		this.setInSand(this.getGrowth() < 336000 && ((this.level().getBlockState(pos).is(BlockTags.SAND) || this.level().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.level().getBlockState(pos).is(BlockTags.DIRT) || this.level().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
 
 		// Turning into Blaster logic
 		if (this.getGrowth() >= 336000)
 			this.removeFreeWill();
 
 		// Block breaking logic
-		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
+		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
 			breakingCounter++;
 			if (breakingCounter > 10)
 				for (var testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
-					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
-						if (!level.isClientSide)
-							this.level.removeBlock(testPos, false);
+					if (level().getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level().getBlockState(testPos).isAir()) {
+						if (!level().isClientSide)
+							this.level().removeBlock(testPos, false);
 						if (this.swingingArm != null)
 							this.swing(swingingArm);
 						breakingCounter = -90;
-						if (level.isClientSide())
+						if (level().isClientSide())
 							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
 					}
 				}
@@ -279,12 +277,12 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		// Attack animation logic
 		if (attackProgress > 0) {
 			attackProgress--;
-			if (!level.isClientSide && attackProgress <= 0)
+			if (!level().isClientSide && attackProgress <= 0)
 				setCurrentAttackType(AttackType.NONE);
 		}
 		if (attackProgress == 0 && swinging)
 			attackProgress = 10;
-		if (!level.isClientSide && getCurrentAttackType() == AttackType.NONE)
+		if (!level().isClientSide && getCurrentAttackType() == AttackType.NONE)
 			setCurrentAttackType(switch (random.nextInt(2)) {
 			case 0 -> AttackType.BITE;
 			default -> AttackType.BITE;

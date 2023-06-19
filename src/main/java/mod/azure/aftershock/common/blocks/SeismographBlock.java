@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -30,7 +29,7 @@ public class SeismographBlock extends BaseEntityBlock implements EntityBlock {
 	public static final EnumProperty<SeismographStates> STORAGE_STATE = SeismographProperties.STORAGE_STATE;
 
 	public SeismographBlock() {
-		super(Block.Properties.of(Material.METAL).strength(4.0F).sound(SoundType.METAL).noOcclusion());
+		super(Block.Properties.of().strength(4.0F).sound(SoundType.METAL).noOcclusion());
 		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(STORAGE_STATE, SeismographStates.CLOSED));
 	}
 

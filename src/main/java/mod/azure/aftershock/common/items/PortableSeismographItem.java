@@ -41,12 +41,12 @@ public class PortableSeismographItem extends Item {
 		if (level != null)
 			if (entity != null)
 				if ((((Player)entity).getOffhandItem().is(this) || selected) && itemStack.getDamageValue() < itemStack.getMaxDamage() - 1)
-					entity.getLevel().getEntitiesOfClass(SoundTrackingEntity.class, new AABB(entity.blockPosition()).inflate(15D, 15D, 15D)).forEach(e -> {
+					entity.level().getEntitiesOfClass(SoundTrackingEntity.class, new AABB(entity.blockPosition()).inflate(15D, 15D, 15D)).forEach(e -> {
 						if (e.walkAnimation.speed() >= 0.15F) {
 							this.soundcounter++;
 							if (this.soundcounter >= 5) {
-								if (entity.getLevel().isClientSide)
-									entity.getLevel().playSound(entity, entity.blockPosition(), SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 1.0f, 3.3f);
+								if (entity.level().isClientSide)
+									entity.level().playSound(entity, entity.blockPosition(), SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 1.0f, 3.3f);
 								this.soundcounter = 0;
 								itemStack.setDamageValue(itemStack.getDamageValue() + 1);
 							}

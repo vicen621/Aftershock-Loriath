@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -44,7 +43,7 @@ public class GraboidEggBlock extends Block {
 	public static final IntegerProperty EGGS = BlockStateProperties.EGGS;
 
 	public GraboidEggBlock() {
-		super(Block.Properties.of(Material.EGG).strength(4.0F).sound(SoundType.STONE).randomTicks().noOcclusion());
+		super(Block.Properties.of().strength(4.0F).sound(SoundType.STONE).randomTicks().noOcclusion());
 		this.registerDefaultState((BlockState) ((BlockState) ((BlockState) this.stateDefinition.any()).setValue(HATCH, 0)).setValue(EGGS, 1));
 	}
 

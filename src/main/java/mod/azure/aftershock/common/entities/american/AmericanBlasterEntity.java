@@ -20,14 +20,12 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
@@ -35,7 +33,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -55,10 +52,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
@@ -95,11 +89,9 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 
 	public AmericanBlasterEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
-		// Registers sound listening settings
-		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
 		// Sets exp drop amount
 		this.xpReward = AftershockMod.config.americanblaster_exp;
-		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
+		moveControl = this.onGround() ? new MoveControl(this) : new BlasterFlyControl(this);
 	}
 
 	// Animation logic
@@ -108,45 +100,45 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		controllers.add(new AnimationController<>(this, "livingController", 0, event -> {
 			var isDead = event.getAnimatable().dead || event.getAnimatable().getHealth() < 0.01 || event.getAnimatable().isDeadOrDying();
 			var isNewBorn = (event.getAnimatable().isNewBorn() && !isDead && !this.isEating() && !event.getAnimatable().isScreaming() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
-			var isSearching = event.getAnimatable().isSearching() && event.getAnimatable().isOnGround() && !event.getAnimatable().isEating() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp();
+			var isSearching = event.getAnimatable().isSearching() && event.getAnimatable().onGround() && !event.getAnimatable().isEating() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp();
 			var isScreaming = (event.getAnimatable().getAttckingState() == 1 && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
 			var isPassedout = (event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isWakingup = (event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isLayingEgg = (event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isTakingOff = (event.getAnimatable().isTakingOff() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
-			var isSearchingFlying = (event.getAnimatable().isSearchingFlying() && !event.getAnimatable().isOnGround() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
+			var isSearchingFlying = (event.getAnimatable().isSearchingFlying() && !event.getAnimatable().onGround() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isAttacking = getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead;
 			var movingArggo = event.isMoving() && event.getAnimatable().isAggressive();
 			if (isAttacking)
 				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
-			if (event.isMoving() && !this.isAggressive() && this.getLastDamageSource() == null && this.isOnGround())
+			if (event.isMoving() && !this.isAggressive() && this.getLastDamageSource() == null && this.onGround())
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
-			if (movingArggo && this.getLastDamageSource() == null && this.isOnGround())
+			if (movingArggo && this.getLastDamageSource() == null && this.onGround())
 				return event.setAndContinue(AftershockAnimationsDefault.RUN);
-			if (this.getLastDamageSource() == null && !this.isOnGround() && !isSearchingFlying)
+			if (this.getLastDamageSource() == null && !this.onGround() && !isSearchingFlying)
 				return event.setAndContinue(AftershockAnimationsDefault.GLIDING);
 			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT
 					: isTakingOff ? AftershockAnimationsDefault.TAKE_OFF
 							: isLayingEgg ? AftershockAnimationsDefault.LAY : isSearching ? AftershockAnimationsDefault.LOOK : isSearching ? AftershockAnimationsDefault.GLIDING_LOOK : isPassedout ? AftershockAnimationsDefault.PASSOUT : isWakingup ? AftershockAnimationsDefault.WAKEUP : isNewBorn ? AftershockAnimationsDefault.BIRTH : isScreaming ? AftershockAnimationsDefault.BLOW_TORCH : isDead ? AftershockAnimationsDefault.DEATH : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("takeoff"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.CAMPFIRE_CRACKLE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
 			if (event.getKeyframeData().getSound().matches("fire"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.HOSTILE, 0.75F, 1.0F, true);
 			if (event.getKeyframeData().getSound().matches("screaming"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_HURT, SoundSource.HOSTILE, 1.25F, 0.5F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_HURT, SoundSource.HOSTILE, 1.25F, 0.5F, true);
 			if (event.getKeyframeData().getSound().matches("looking"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.CHICKEN_AMBIENT, SoundSource.HOSTILE, 1.25F, 0.1F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.CHICKEN_AMBIENT, SoundSource.HOSTILE, 1.25F, 0.1F, true);
 			if (event.getKeyframeData().getSound().matches("fall"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SMALL_FALL, SoundSource.HOSTILE, 1.25F, 0.1F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.GENERIC_SMALL_FALL, SoundSource.HOSTILE, 1.25F, 0.1F, true);
 			if (event.getKeyframeData().getSound().matches("dying"))
-				if (this.level.isClientSide)
-					this.getCommandSenderWorld().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LLAMA_DEATH, SoundSource.HOSTILE, 1.25F, 0.1F, true);
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LLAMA_DEATH, SoundSource.HOSTILE, 1.25F, 0.1F, true);
 		}));
 	}
 
@@ -195,7 +187,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 						// Radius it will walk around in
 						new SetRandomWalkTarget<>().setRadius(20).speedModifier(1.1f).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
 						// Idles the mob so it doesn't do anything
-						new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)).startCondition(entity -> this.isOnGround() || !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> !this.isOnGround() || this.isPassedOut() || this.isWakingUp())));
+						new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)).startCondition(entity -> this.onGround() || !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> !this.onGround() || this.isPassedOut() || this.isWakingUp())));
 	}
 
 	@Override
@@ -230,14 +222,14 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		flyingpathnavigator.setCanOpenDoors(false);
 		flyingpathnavigator.setCanFloat(true);
 		flyingpathnavigator.setCanPassDoors(true);
-		return this.isOnGround() ? new AzureNavigation(this, worldIn) : flyingpathnavigator;
+		return this.onGround() ? new AzureNavigation(this, worldIn) : flyingpathnavigator;
 	}
 
 	@Override
 	public void travel(Vec3 movementInput) {
 		if (this.tickCount % 10 == 0)
 			this.refreshDimensions();
-		moveControl = this.isOnGround() ? new MoveControl(this) : new BlasterFlyControl(this);
+		moveControl = this.onGround() ? new MoveControl(this) : new BlasterFlyControl(this);
 		super.travel(movementInput);
 	}
 
@@ -358,9 +350,9 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 	// Exploding
 	private void explodeBlaster() {
 		// Handles exploding the mob and killing it.
-		if (!this.level.isClientSide) {
+		if (!this.level().isClientSide) {
 			this.dead = true;
-			this.level.explode(this, this.getX(), this.getY(), this.getZ(), 3.0F, Level.ExplosionInteraction.MOB);
+			this.level().explode(this, this.getX(), this.getY(), this.getZ(), 3.0F, Level.ExplosionInteraction.MOB);
 			this.discard();
 		}
 	}
@@ -371,22 +363,17 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		// Checks if item used on entity can cause it to explode. Uses the creeper igniters tag
 		if (itemStack.is(ItemTags.CREEPER_IGNITERS)) {
 			var soundEvent = itemStack.is(Items.FIRE_CHARGE) ? SoundEvents.FIRECHARGE_USE : SoundEvents.FLINTANDSTEEL_USE;
-			this.level.playSound(player2, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundSource(), 1.0f, this.random.nextFloat() * 0.4f + 0.8f);
-			if (!this.level.isClientSide) {
+			this.level().playSound(player2, this.getX(), this.getY(), this.getZ(), soundEvent, this.getSoundSource(), 1.0f, this.random.nextFloat() * 0.4f + 0.8f);
+			if (!this.level().isClientSide) {
 				this.ignite();
 				if (!itemStack.isDamageableItem())
 					itemStack.shrink(1);
 				else
 					itemStack.hurtAndBreak(1, player2, player -> player.broadcastBreakEvent(interactionHand));
 			}
-			return InteractionResult.sidedSuccess(this.level.isClientSide);
+			return InteractionResult.sidedSuccess(this.level().isClientSide);
 		}
 		return super.mobInteract(player2, interactionHand);
-	}
-
-	@Override
-	public void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, Entity var5, Entity var6, float var7) {
-		return;
 	}
 
 	// Mob logic done each tick
@@ -396,19 +383,19 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 
 		// Add flame particles when flying
-		if (!this.isOnGround())
-			if (level.isClientSide)
-				level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 0.0D, 0.0D, 0.0D);
+		if (!this.onGround())
+			if (level().isClientSide)
+				level().addParticle(ParticleTypes.FLAME, this.getX(), this.getY(0.5), this.getZ(), 0.0D, 0.0D, 0.0D);
 
 		// Attack animation logic
 		if (attackProgress > 0) {
 			attackProgress--;
-			if (!level.isClientSide && attackProgress <= 0)
+			if (!level().isClientSide && attackProgress <= 0)
 				setCurrentAttackType(AttackType.NONE);
 		}
 		if (attackProgress == 0 && swinging)
 			attackProgress = 10;
-		if (!level.isClientSide && getCurrentAttackType() == AttackType.NONE)
+		if (!level().isClientSide && getCurrentAttackType() == AttackType.NONE)
 			setCurrentAttackType(switch (random.nextInt(5)) {
 			case 0 -> AttackType.NORMAL;
 			case 1 -> AttackType.BITE;
@@ -418,7 +405,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			});
 
 		// Taking off logic
-		if (this.isOnGround() && !this.isDeadOrDying() && !this.isPassedOut() && !this.isSearching() && !this.isWakingUp() && !this.isEating() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && !this.isAggressive())
+		if (this.onGround() && !this.isDeadOrDying() && !this.isPassedOut() && !this.isSearching() && !this.isWakingUp() && !this.isEating() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && !this.isAggressive())
 			takeoffCounter++;
 		if (this.takeoffCounter >= 450)
 			this.setDeltaMovement(0.0F, -1.0F, 0.0F);
@@ -455,7 +442,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
 
 		// Egg laying logic
-		if (this.isOnGround() && this.isAlive() && this.isTakingOff() && !this.isNewBorn() && !this.isAggressive() && !this.isPassedOut() && !this.isWakingUp())
+		if (this.onGround() && this.isAlive() && this.isTakingOff() && !this.isNewBorn() && !this.isAggressive() && !this.isPassedOut() && !this.isWakingUp())
 			layEggCounter++;
 		if (layEggCounter == 1980) {
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 100, false, false));
@@ -465,10 +452,10 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			this.setPassedOutStatus(false);
 		}
 		if (layEggCounter == 2000) {
-			this.level.playSound(null, this.blockPosition(), SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.1f, 0.9f + this.level.random.nextFloat() * 0.2f);
+			this.level().playSound(null, this.blockPosition(), SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.1f, 0.9f + this.level().random.nextFloat() * 0.2f);
 			var blockState = (BlockState) ModBlocks.GRABOID_EGG.defaultBlockState().setValue(GraboidEggBlock.EGGS, this.random.nextInt(4) + 1);
-			this.level.setBlock(this.blockPosition(), blockState, 3);
-			this.level.gameEvent(GameEvent.BLOCK_PLACE, this.blockPosition(), GameEvent.Context.of(this, blockState));
+			this.level().setBlock(this.blockPosition(), blockState, 3);
+			this.level().gameEvent(GameEvent.BLOCK_PLACE, this.blockPosition(), GameEvent.Context.of(this, blockState));
 			this.layEggCounter = 0;
 		}
 		if (layEggCounter >= 2020) {
@@ -516,17 +503,17 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		}
 
 		// Block breaking logic
-		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
+		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
 			breakingCounter++;
 			if (breakingCounter > 10)
 				for (BlockPos testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
-					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
-						if (!level.isClientSide)
-							this.level.removeBlock(testPos, false);
+					if (level().getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level().getBlockState(testPos).isAir()) {
+						if (!level().isClientSide)
+							this.level().removeBlock(testPos, false);
 						if (this.swingingArm != null)
 							this.swing(swingingArm);
 						breakingCounter = -90;
-						if (level.isClientSide())
+						if (level().isClientSide())
 							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
 					}
 				}

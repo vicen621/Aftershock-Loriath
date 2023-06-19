@@ -20,7 +20,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -74,23 +73,22 @@ public class EightGaugeItem extends BaseGunItem {
 						level.addFreshEntity(bullet1);
 					}
 					// Blasts the player back 1 block when firing
-					if (!playerentity.isCreative() || playerentity.getAbilities().flying)
-						playerentity.moveTo(entityLiving.getX() + (switch (playerentity.getDirection()) {
-						case WEST -> 1.0F;
-						case EAST -> -1.0F;
-						default -> 0.0F;
-						}), entityLiving.getY(), entityLiving.getZ() + (switch (playerentity.getDirection()) {
-						case NORTH -> 1.0F;
-						case SOUTH -> -1.0F;
-						default -> 0.0F;
-						}));
+					playerentity.moveTo(entityLiving.getX() + (switch (playerentity.getDirection()) {
+					case WEST -> 1.0F;
+					case EAST -> -1.0F;
+					default -> 0.0F;
+					}), entityLiving.getY(), entityLiving.getZ() + (switch (playerentity.getDirection()) {
+					case NORTH -> 1.0F;
+					case SOUTH -> -1.0F;
+					default -> 0.0F;
+					}));
 					// Plays firing sound
 					level.playSound((Player) null, playerentity.getX(), playerentity.getY(), playerentity.getZ(), ModSounds.SHOTGUN, SoundSource.PLAYERS, 1.5F, 1.7F);
 					// Plays firing animation
 					triggerAnim(playerentity, GeoItem.getOrAssignId(stack, (ServerLevel) level), "shoot_controller", "firing");
 				}
 				// spawn light block
-				spawnLightSource(entityLiving, playerentity.level.isWaterAt(playerentity.blockPosition()));
+				spawnLightSource(entityLiving, playerentity.level().isWaterAt(playerentity.blockPosition()));
 			}
 		}
 	}
@@ -105,9 +103,6 @@ public class EightGaugeItem extends BaseGunItem {
 					ClientPlayNetworking.send(AftershockMod.SHOTGUN, passedData);
 				}
 			}
-		if (!stack.getOrCreateTag().contains("ammo")) {
-			addNBTData(stack, "ammo", IntTag.valueOf(2));
-		}
 	}
 
 	public void reload(Player user, InteractionHand hand) {
@@ -117,7 +112,7 @@ public class EightGaugeItem extends BaseGunItem {
 				user.getItemInHand(hand).hurtAndBreak(-1, user, s -> user.broadcastBreakEvent(hand));
 				user.getItemInHand(hand).setPopTime(3);
 				user.getCommandSenderWorld().playSound((Player) null, user.getX(), user.getY(), user.getZ(), ModSounds.SHOTGUNRELOAD, SoundSource.PLAYERS, 1.00F, 1.0F);
-				if (!user.getLevel().isClientSide)
+				if (!user.level().isClientSide)
 					triggerAnim(user, GeoItem.getOrAssignId(user.getItemInHand(hand), (ServerLevel) user.getCommandSenderWorld()), "shoot_controller", "reload");
 			}
 		}

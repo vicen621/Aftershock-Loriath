@@ -5,6 +5,7 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
+import mod.azure.aftershock.common.entities.base.AfterShockVibrationUser;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
 import mod.azure.aftershock.common.entities.tasks.SoundPanic;
@@ -15,7 +16,6 @@ import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
 import mod.azure.azurelib.core.animation.RawAnimation;
-import mod.azure.azurelib.helper.AzureVibrationListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -38,8 +38,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -61,8 +59,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 
 	public AmericanDirtDragonEntity(EntityType<? extends BaseEntity> entityType, Level level) {
 		super(entityType, level);
-		// Registers sound listening settings
-		this.dynamicGameEventListener = new DynamicGameEventListener<AzureVibrationListener>(new AzureVibrationListener(new EntityPositionSource(this, this.getEyeHeight()), 15, this));
+		// Sets the speed and range of vibrations
+		this.vibrationUser = new AfterShockVibrationUser(this, 1.25F, 15);
 		// Sets exp drop amount
 		this.xpReward = AftershockMod.config.americandirtdevil_exp;
 	}
@@ -161,7 +159,7 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	@Override
 	public LivingEntity growInto() {
 		// grow into American Graboid
-		var entity = ModMobs.AMERICAN_GRABOID.create(level);
+		var entity = ModMobs.AMERICAN_GRABOID.create(level());
 		if (hasCustomName())
 			entity.setCustomName(this.getCustomName());
 		if (isAlbino())
@@ -169,12 +167,12 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		entity.setNewBornStatus(true);
 		entity.setGrowth(0);
 		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
-		var areaEffectCloudEntity = new AreaEffectCloud(this.level, this.getX(), this.getY() + 1, this.getZ());
+		var areaEffectCloudEntity = new AreaEffectCloud(this.level(), this.getX(), this.getY() + 1, this.getZ());
 		areaEffectCloudEntity.setRadius(1.0F);
 		areaEffectCloudEntity.setDuration(20);
 		areaEffectCloudEntity.setParticle(ParticleTypes.POOF);
 		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
-		entity.level.addFreshEntity(areaEffectCloudEntity);
+		entity.level().addFreshEntity(areaEffectCloudEntity);
 		return entity;
 	}
 
@@ -203,22 +201,22 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		// Adds particle effect to surface when moving so you can track it
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
-		if (level.getBlockState(pos).isSolidRender(level, pos) && !this.isDeadOrDying() && this.isInSand())
-			if (level.isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
-					this.getLevel().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level.getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
+		if (level().getBlockState(pos).isSolidRender(level(), pos) && !this.isDeadOrDying() && this.isInSand())
+			if (level().isClientSide && !(velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0))
+				this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level().getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
 
 		// Block breaking logic
-		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
+		if (!this.isDeadOrDying() && this.isAggressive() && !this.isInWater() && this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) == true) {
 			breakingCounter++;
 			if (breakingCounter > 10)
 				for (BlockPos testPos : BlockPos.betweenClosed(blockPosition().above().relative(getDirection()), blockPosition().relative(getDirection()).above(1))) {
-					if (level.getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level.getBlockState(testPos).isAir()) {
-						if (!level.isClientSide)
-							this.level.removeBlock(testPos, false);
+					if (level().getBlockState(testPos).is(AftershockMod.WEAK_BLOCKS) && !level().getBlockState(testPos).isAir()) {
+						if (!level().isClientSide)
+							this.level().removeBlock(testPos, false);
 						if (this.swingingArm != null)
 							this.swing(swingingArm);
 						breakingCounter = -90;
-						if (level.isClientSide())
+						if (level().isClientSide())
 							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
 					}
 				}
@@ -229,12 +227,12 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		// Attack animation logic
 		if (attackProgress > 0) {
 			attackProgress--;
-			if (!level.isClientSide && attackProgress <= 0)
+			if (!level().isClientSide && attackProgress <= 0)
 				setCurrentAttackType(AttackType.NONE);
 		}
 		if (attackProgress == 0 && swinging)
 			attackProgress = 10;
-		if (!level.isClientSide && getCurrentAttackType() == AttackType.NONE)
+		if (!level().isClientSide && getCurrentAttackType() == AttackType.NONE)
 			setCurrentAttackType(switch (random.nextInt(2)) {
 			case 0 -> AttackType.ATTACK;
 			case 1 -> AttackType.HOLD;

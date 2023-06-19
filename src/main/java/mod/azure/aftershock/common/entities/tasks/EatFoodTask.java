@@ -79,7 +79,7 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 			if (entity instanceof AmericanBlasterEntity blaster)
 				blaster.eatingCounter++;
 			entity.getNavigation().stop();
-			itemLocation.stream().findFirst().get().getItem().finishUsingItem(entity.level, entity);
+			itemLocation.stream().findFirst().get().getItem().finishUsingItem(entity.level(), entity);
 			itemLocation.stream().findFirst().get().getItem().shrink(1);
 		}
 	}

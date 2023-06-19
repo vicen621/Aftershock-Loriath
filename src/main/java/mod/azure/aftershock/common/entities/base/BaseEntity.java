@@ -17,8 +17,6 @@ import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
-import mod.azure.azurelib.helper.AzureVibrationListener;
-import mod.azure.azurelib.helper.AzureVibrationListener.AzureVibrationListenerConfig;
 import mod.azure.azurelib.helper.Growable;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.core.BlockPos;
@@ -30,8 +28,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.GameEventTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -43,8 +39,6 @@ import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -55,12 +49,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEvent.Context;
-import net.minecraft.world.level.gameevent.GameEventListener;
-import net.tslat.smartbrainlib.util.BrainUtils;
+import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 
-public abstract class BaseEntity extends Monster implements GeoEntity, Growable, AzureVibrationListenerConfig {
+public abstract class BaseEntity extends Monster implements GeoEntity, Growable, VibrationSystem {
 
 	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 	protected static final EntityDataAccessor<Float> GROWTH = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.FLOAT);
@@ -74,11 +65,13 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	public static final EntityDataAccessor<Boolean> SEARCHING = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	public static final EntityDataAccessor<Boolean> ALBINO = SynchedEntityData.defineId(BaseEntity.class, EntityDataSerializers.BOOLEAN);
 	protected static final Logger LOGGER = LogUtils.getLogger();
+	private final DynamicGameEventListener<VibrationSystem.Listener> dynamicGameEventListener;
+	protected VibrationSystem.User vibrationUser;
+	private VibrationSystem.Data vibrationData;
 	public static final Predicate<ItemEntity> PICKABLE_DROP_FILTER = item -> {
 		ItemStack itemStack = item.getItem();
 		return itemStack.getItem().isEdible() && item.isAlive() && !item.hasPickUpDelay();
 	};
-	public DynamicGameEventListener<AzureVibrationListener> dynamicGameEventListener;
 	private AngerManagement angerManagement = new AngerManagement(this::canTargetEntity, Collections.emptyList());
 	protected int attackProgress = 0;
 	protected long searchingProgress = 0L;
@@ -91,6 +84,9 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	protected BaseEntity(EntityType<? extends Monster> entityType, Level level) {
 		super(entityType, level);
 		setMaxUpStep(1.5f);
+		this.vibrationUser = new AfterShockVibrationUser(this, 0.0F, 0);
+		this.vibrationData = new VibrationSystem.Data();
+		this.dynamicGameEventListener = new DynamicGameEventListener<VibrationSystem.Listener>(new VibrationSystem.Listener(this));
 	}
 
 	@Override
@@ -218,7 +214,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		nbt.putInt("attack_state", getAttckingState());
 		nbt.putBoolean("is_searching", isSearching());
 		nbt.putBoolean("is_albino", isAlbino());
-		AzureVibrationListener.codec(this).encodeStart(NbtOps.INSTANCE, this.dynamicGameEventListener.getListener()).resultOrPartial(LOGGER::error).ifPresent(tag -> nbt.put("listener", (Tag) tag));
+		VibrationSystem.Data.CODEC.encodeStart(NbtOps.INSTANCE, this.vibrationData).resultOrPartial(LOGGER::error).ifPresent(tag -> nbt.put("listener", (Tag) tag));
 		AngerManagement.codec(this::canTargetEntity).encodeStart(NbtOps.INSTANCE, this.angerManagement).resultOrPartial(LOGGER::error).ifPresent(tag -> nbt.put("anger", (Tag) tag));
 	}
 
@@ -248,7 +244,9 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 			this.syncClientAngerLevel();
 		}
 		if (nbt.contains("listener", 10))
-			AzureVibrationListener.codec(this).parse(new Dynamic<>(NbtOps.INSTANCE, nbt.getCompound("listener"))).resultOrPartial(LOGGER::error).ifPresent(vibrationListener -> this.dynamicGameEventListener.updateListener((AzureVibrationListener) vibrationListener, this.level));
+			VibrationSystem.Data.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, nbt.getCompound("listener"))).resultOrPartial(LOGGER::error).ifPresent(data -> {
+				this.vibrationData = data;
+			});
 	}
 
 	public int getClientAngerLevel() {
@@ -284,7 +282,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 
 	@Override
 	protected void customServerAiStep() {
-		var serverLevel = (ServerLevel) this.level;
+		var serverLevel = (ServerLevel) this.level();
 		super.customServerAiStep();
 		if (this.tickCount % 20 == 0) {
 			this.angerManagement.tick(serverLevel, this::canTargetEntity);
@@ -292,18 +290,20 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		}
 	}
 
-	@Override
-	public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> biConsumer) {
-		var level = this.level;
-		if (level instanceof ServerLevel) {
-			ServerLevel serverLevel = (ServerLevel) level;
-			biConsumer.accept(this.dynamicGameEventListener, serverLevel);
-		}
-	}
+    @Override
+    public VibrationSystem.Data getVibrationData() {
+        return this.vibrationData;
+    }
+
+    @Override
+    public VibrationSystem.User getVibrationUser() {
+        return this.vibrationUser;
+    }
 
 	@Override
-	public boolean canTriggerAvoidVibration() {
-		return true;
+	public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> biConsumer) {
+		if (level()instanceof ServerLevel serverLevel)
+			biConsumer.accept(this.dynamicGameEventListener, serverLevel);
 	}
 
 	@Contract(value = "null->false")
@@ -311,7 +311,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		if (!(entity instanceof LivingEntity))
 			return false;
 		var livingEntity = (LivingEntity) entity;
-		if (this.level != entity.level)
+		if (this.level() != entity.level())
 			return false;
 		if (!EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(entity))
 			return false;
@@ -335,44 +335,20 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 			return false;
 		if (livingEntity.isDeadOrDying())
 			return false;
-		if (!this.level.getWorldBorder().isWithinBounds(livingEntity.getBoundingBox()))
+		if (!this.level().getWorldBorder().isWithinBounds(livingEntity.getBoundingBox()))
 			return false;
 		return true;
 	}
 
-	@Override
-	public TagKey<GameEvent> getListenableEvents() {
-		return GameEventTags.WARDEN_CAN_LISTEN;
-	}
-
-	@Override
-	public boolean shouldListen(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, Context var5) {
-		if (this.isNoAi() || this.isDeadOrDying() || !level.getWorldBorder().isWithinBounds(var3) || this.isRemoved())
-			return false;
-		var entity = var5.sourceEntity();
-		return !(entity instanceof LivingEntity) || this.canTargetEntity((LivingEntity) entity);
-	}
-
-	@Override
-	public void onSignalReceive(ServerLevel var1, GameEventListener var2, BlockPos var3, GameEvent var4, Entity var5, Entity var6, float var7) {
-		if (this.isDeadOrDying())
-			return;
-		if (this.isVehicle())
-			return;
-		if (var6 instanceof LivingEntity livingEntity)
-			if (!(livingEntity instanceof BaseEntity))
-				BrainUtils.setMemory(this, MemoryModuleType.WALK_TARGET, new WalkTarget(var3, 1.5F, 0));
-	}
-
 	public void shootFlames(Entity target) {
-		if (!this.level.isClientSide) {
+		if (!this.level().isClientSide) {
 			if (this.getTarget() != null) {
 				var world = this.getCommandSenderWorld();
 				var vector3d = this.getViewVector(1.0F);
 				var x = target.getX() - (this.getX() + vector3d.x * 2);
 				var y = target.getY(0.5) - (this.getY(0.75));
 				var z = target.getZ() - (this.getZ() + vector3d.z * 2);
-				var smallFireball = new SmallFireball(this.level, this, x, y, z);
+				var smallFireball = new SmallFireball(this.level(), this, x, y, z);
 				smallFireball.setPos(smallFireball.getX(), this.getY(0.5) + 0.5, smallFireball.getZ());
 				world.addFreshEntity(smallFireball);
 			}
@@ -382,14 +358,8 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	@Override
 	public void tick() {
 		super.tick();
-		if (!level.isClientSide && this.isAlive())
+		if (!level().isClientSide && this.isAlive())
 			grow(this, 1 * getGrowthMultiplier());
-
-		var level = this.level;
-		if (level instanceof ServerLevel) {
-			var serverLevel = (ServerLevel) level;
-			this.dynamicGameEventListener.getListener().tick(serverLevel);
-		}
 		if (this.isAggressive()) {
 			searchingCooldown = -60;
 			this.setSearchingStatus(false);
