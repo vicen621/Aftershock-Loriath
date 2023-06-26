@@ -6,8 +6,12 @@ import mod.azure.azurelib.helper.AzureVibrationUser;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.tslat.smartbrainlib.util.BrainUtils;
 
 public class AfterShockVibrationUser extends AzureVibrationUser {
 
@@ -21,6 +25,9 @@ public class AfterShockVibrationUser extends AzureVibrationUser {
 			return;
 		if (this.mob.isVehicle())
 			return;
-		mob.getNavigation().moveTo(blockPos.getX(), blockPos.getY(), blockPos.getZ(), this.moveSpeed);
+		if (entity != null)
+			if (entity instanceof LivingEntity lEntity)
+				this.mob.setTarget(lEntity);
+		BrainUtils.setMemory(this.mob, MemoryModuleType.WALK_TARGET, new WalkTarget(blockPos, this.moveSpeed, 0));
 	}
 }

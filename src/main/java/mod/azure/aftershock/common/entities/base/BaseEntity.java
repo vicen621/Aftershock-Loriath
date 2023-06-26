@@ -17,6 +17,7 @@ import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.animatable.GeoEntity;
 import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.helper.AzureTicker;
 import mod.azure.azurelib.helper.Growable;
 import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.core.BlockPos;
@@ -364,6 +365,8 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 			searchingCooldown = -60;
 			this.setSearchingStatus(false);
 		}
+		if (this.level()instanceof ServerLevel serverLevel)
+			AzureTicker.tick(serverLevel, this.vibrationData, this.vibrationUser);
 	}
 
 }

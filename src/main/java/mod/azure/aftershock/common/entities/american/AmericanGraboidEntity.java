@@ -8,8 +8,8 @@ import mod.azure.aftershock.common.AftershockMod.ModMobs;
 import mod.azure.aftershock.common.entities.base.AfterShockVibrationUser;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
+import mod.azure.aftershock.common.entities.tasks.GraboidAttackTask;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
-import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.ai.pathing.AzureNavigation;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
 import mod.azure.azurelib.core.animation.Animation.LoopType;
@@ -28,6 +28,7 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
@@ -35,10 +36,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.animal.AbstractGolem;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -46,7 +51,6 @@ import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
@@ -58,6 +62,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliat
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.custom.UnreachableTargetSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 
 public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartBrainOwner<AmericanGraboidEntity> {
 
@@ -76,16 +81,20 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public void registerControllers(ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "livingController", 5, event -> {
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
+			var isSearching = this.isSearching() && !this.isEating() && !this.isPuking();
 			// Play animation attacking
-			if (getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead)
-				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
+			if (event.getAnimatable().getAttckingState() == 2 && !isDead)
+				return event.setAndContinue(RawAnimation.begin().then("bite", LoopType.HOLD_ON_LAST_FRAME));
+			// Play animation attacking
+			if (event.getAnimatable().getAttckingState() == 5 && !isDead)
+				return event.setAndContinue(RawAnimation.begin().then("digin", LoopType.HOLD_ON_LAST_FRAME));
 			// Play animation when moving
 			if (event.isMoving() && this.getLastDamageSource() == null)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
 			// Play animation when dead
 			if (isDead)
 				return event.setAndContinue(AftershockAnimationsDefault.DEATH);
-			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
+			return event.setAndContinue(isSearching ? AftershockAnimationsDefault.DIGOUT : this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
 		}));
 	}
 
@@ -98,6 +107,8 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	@Override
 	public List<ExtendedSensor<AmericanGraboidEntity>> getSensors() {
 		return ObjectArrayList.of(
+				// Checks living targets it can see is a heat giving entity via the tag or entities on fire.
+				new NearbyLivingEntitySensor<AmericanGraboidEntity>().setPredicate((target, entity) -> target.isAlive() && entity.hasLineOfSight(target) && (!(target instanceof BaseEntity || (target.getMobType() == MobType.UNDEAD && !target.isOnFire()) || target instanceof EnderMan || target instanceof Endermite || target instanceof Creeper || target instanceof AbstractGolem) || target.getType().is(AftershockMod.HEAT_ENTITY) || target.isOnFire())),
 				// Checks for what last hurt it
 				new HurtBySensor<>(),
 				// Checks if target is unreachable
@@ -131,11 +142,11 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public BrainActivityGroup<AmericanGraboidEntity> getFightTasks() {
 		return BrainActivityGroup.fightTasks(
 				// Removes entity from being a target.
-				new InvalidateAttackTarget<>().invalidateIf((entity, target) -> !target.isAlive() || target instanceof Player && ((Player) target).isCreative()),
+				new InvalidateAttackTarget<>().invalidateIf((target, entity) -> !target.isAlive() || !entity.hasLineOfSight(target)),
 				// Moves to traget to attack
-				new SetWalkTargetToAttackTarget<>().speedMod(1.5F),
+				new SetWalkTargetToAttackTarget<>().speedMod(1.3F),
 				// Attacks the target if in range and is grown enough
-				new AnimatableMeleeAttack<>(10));
+				new GraboidAttackTask<>(25));
 	}
 
 	@Override
@@ -236,17 +247,39 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		return super.finalizeSpawn(world, difficulty, spawnReason, entityData, entityNbt);
 	}
 
+	@Override
+	protected void playStepSound(BlockPos blockPos, BlockState blockState) {
+	}
+
 	// Mob logic done each tick
 	@Override
 	public void tick() {
+		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
 		super.tick();
 
+		if (this.getAttckingState() == 5) {
+			this.breakingCounter++;
+			this.level().addParticle(ParticleTypes.EXPLOSION, this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), 0, 0, 0);
+		}
+		if (this.breakingCounter >= 30)
+			this.setAttackingState(0);
+
+		if (this.getAttckingState() == 2)
+			this.attackProgress++;
+		if (this.attackProgress >= 50) {
+			this.setAttackingState(5);
+			this.attackProgress = 0;
+		}
+		if (this.getAttckingState() == 0) {
+			this.attackProgress = 0;
+			this.breakingCounter = 0;
+		}
+
 		// Adds particle effect to surface when moving so you can track it
-		var pos = BlockPos.containing(this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())), this.getZ()).below();
 		if (level().getBlockState(pos).isSolidRender(level(), pos) && !this.isDeadOrDying() && this.isInSand())
 			if (level().isClientSide && this.getDeltaMovement().horizontalDistance() != 0.0) {
 				this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, level().getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) + 0.5F, this.getZ(), this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D, this.random.nextGaussian() * 0.02D);
-				this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK_MARKER, level().getBlockState(pos)), this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D, this.random.nextGaussian() * 1.2D);
+				this.level().addParticle(ParticleTypes.POOF, this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), 0, 0, 0);
 			}
 		// Sets the Graboid in the blocks below if it they match the tag checks and only if it's not in the part of life it's not beached to give birth
 		this.setInSand(this.getGrowth() < 336000 && ((this.level().getBlockState(pos).is(BlockTags.SAND) || this.level().getBlockState(pos.below()).is(BlockTags.SAND)) || (this.level().getBlockState(pos).is(BlockTags.DIRT) || this.level().getBlockState(pos.below()).is(BlockTags.DIRT))) && this.deathTime < 5);
@@ -274,19 +307,26 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 				breakingCounter = 0;
 		}
 
-		// Attack animation logic
-		if (attackProgress > 0) {
-			attackProgress--;
-			if (!level().isClientSide && attackProgress <= 0)
-				setCurrentAttackType(AttackType.NONE);
+		// Searching Logic
+		var velocityLength = this.getDeltaMovement().horizontalDistance();
+		if (!this.isDeadOrDying() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
+			searchingCooldown++;
+			if (searchingCooldown == 50) {
+				this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 100, false, false));
+				this.getNavigation().stop();
+				this.setSearchingStatus(true);
+			}
+			if (searchingCooldown >= 208) {
+				searchingCooldown = -600;
+				this.setAttackingState(5);
+				this.setSearchingStatus(false);
+			}
 		}
-		if (attackProgress == 0 && swinging)
-			attackProgress = 10;
-		if (!level().isClientSide && getCurrentAttackType() == AttackType.NONE)
-			setCurrentAttackType(switch (random.nextInt(2)) {
-			case 0 -> AttackType.BITE;
-			default -> AttackType.BITE;
-			});
+		if (this.isDeadOrDying()) {
+			this.setSearchingStatus(false);
+			this.searchingCooldown = 0;
+			this.breakingCounter = 0;
+		}
 	}
 
 }
