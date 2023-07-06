@@ -25,6 +25,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -174,6 +175,34 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 		areaEffectCloudEntity.setRadiusPerTick(-areaEffectCloudEntity.getRadius() / (float) areaEffectCloudEntity.getDuration());
 		entity.level().addFreshEntity(areaEffectCloudEntity);
 		return entity;
+	}
+
+	/**
+	 * Prevents entity collisions from moving the egg.
+	 */
+	@Override
+	public void doPush(Entity entity) {
+	}
+
+	@Override
+	public boolean canBeCollidedWith() {
+		return false;
+	}
+
+	/**
+	 * Prevents the egg from being pushed.
+	 */
+	@Override
+	public boolean isPushable() {
+		return false;
+	}
+
+	/**
+	 * Prevents fluids from moving the egg.
+	 */
+	@Override
+	public boolean isPushedByFluid() {
+		return false;
 	}
 
 	// Checks if should be removed when far way.
