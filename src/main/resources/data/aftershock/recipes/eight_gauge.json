@@ -1,0 +1,23 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "III",
+        " LR",
+        "   "
+    ],
+    "key": {
+        "I": {
+            "item": "minecraft:iron_ingot"
+		},
+		"R": {
+            "item": "minecraft:repeater"
+        },
+        "L": {
+            "item": "minecraft:lever"
+        }
+    },
+    "result": {
+        "item": "aftershock:eightgauge",
+        "count": 1
+    }
+}
