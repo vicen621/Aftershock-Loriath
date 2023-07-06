@@ -60,7 +60,7 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 	@Override
 	protected void doDelayedAction(E entity) {
 		BrainUtils.setForgettableMemory(entity, MemoryModuleType.ATTACK_COOLING_DOWN, true, this.attackIntervalSupplier.apply(entity));
-		var itemLocation = entity.getBrain().getMemory(AftershockMemoryTypes.FOOD_ITEMS.get()).orElse(null);
+		var itemLocation = BrainUtils.memoryOrDefault(entity, AftershockMemoryTypes.FOOD_ITEMS.get(), () -> null);
 
 		if (itemLocation.stream().findFirst().get() == null)
 			return;
