@@ -147,12 +147,12 @@ public class ShellEntity extends AbstractArrow {
 
 	@Override
 	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
 		if (!this.level().isClientSide)
 			this.remove(Entity.RemovalReason.DISCARDED);
-		if (level().getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.SAND) || level().getBlockState(blockHitResult.getBlockPos()).getBlock().defaultBlockState().is(BlockTags.DIRT))
+		if (level().getBlockState(blockHitResult.getBlockPos()).is(BlockTags.SAND) || level().getBlockState(blockHitResult.getBlockPos()).is(BlockTags.DIRT))
 			level().destroyBlock(blockHitResult.getBlockPos(), true);
 		this.setSoundEvent(SoundEvents.ARMOR_EQUIP_IRON);
-		super.onHitBlock(blockHitResult);
 	}
 
 	@Override

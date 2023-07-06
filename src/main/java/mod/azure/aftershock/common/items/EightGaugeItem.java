@@ -9,7 +9,6 @@ import mod.azure.aftershock.client.AftershockClientInit;
 import mod.azure.aftershock.client.render.EightGaugeRender;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModItems;
-import mod.azure.aftershock.common.AftershockMod.ModMobs;
 import mod.azure.aftershock.common.AftershockMod.ModSounds;
 import mod.azure.aftershock.common.entities.projectiles.ShellEntity;
 import mod.azure.azurelib.animatable.GeoItem;
@@ -119,7 +118,7 @@ public class EightGaugeItem extends BaseGunItem {
 	}
 
 	public ShellEntity createArrow(Level worldIn, ItemStack stack, LivingEntity shooter) {
-		return ModMobs.SHELL.create(worldIn);
+		return new ShellEntity(worldIn, shooter);
 	}
 
 	public void addNBTData(ItemStack stack, String key, Tag tag) {
