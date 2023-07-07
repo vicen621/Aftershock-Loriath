@@ -9,6 +9,7 @@ import mod.azure.aftershock.common.AftershockMod.ModSounds;
 import mod.azure.aftershock.common.entities.base.AfterShockVibrationUser;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
+import mod.azure.aftershock.common.entities.tasks.GraboidAttackTask;
 import mod.azure.aftershock.common.entities.tasks.SoundPanic;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
 import mod.azure.aftershock.common.helpers.AttackType;
@@ -32,12 +33,17 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.AbstractGolem;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -59,6 +65,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliat
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.custom.UnreachableTargetSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 
 public class AmericanDirtDragonEntity extends SoundTrackingEntity implements SmartBrainOwner<AmericanDirtDragonEntity> {
 
@@ -75,7 +82,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	public void registerControllers(ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "livingController", 5, event -> {
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
-			if (getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead)
+			// Play animation attacking
+			if (event.getAnimatable().getAttckingState() == 2 && !isDead)
 				return event.setAndContinue(RawAnimation.begin().then("attack", LoopType.PLAY_ONCE));
 			if (event.isMoving() && this.getLastDamageSource() == null)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
@@ -101,6 +109,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	@Override
 	public List<ExtendedSensor<AmericanDirtDragonEntity>> getSensors() {
 		return ObjectArrayList.of(
+				// Checks living targets it can see is a heat giving entity via the tag or entities on fire.
+				new NearbyLivingEntitySensor<AmericanDirtDragonEntity>().setPredicate((target, entity) -> target.isAlive() && entity.hasLineOfSight(target) && (!(target instanceof BaseEntity || (target.getMobType() == MobType.UNDEAD && !target.isOnFire()) || target instanceof EnderMan || target instanceof Endermite || target instanceof Creeper || target instanceof AbstractGolem) || target.getType().is(AftershockMod.HEAT_ENTITY) || target.isOnFire())),
 				// Checks for what last hurt it
 				new HurtBySensor<>(),
 				// Checks if target is unreachable
@@ -139,9 +149,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 				new InvalidateAttackTarget<>().invalidateIf((entity, target) -> !target.isAlive() || target instanceof Player && ((Player) target).isCreative()),
 				// Moves to traget to attack
 				new SetWalkTargetToAttackTarget<>().speedMod(1.5F)
-		// Attacks the target if in range and is grown enough
-//				, new AnimatableMeleeAttack<>(10)
-		);
+				// Attacks the target if in range and is grown enough
+				, new GraboidAttackTask<>(10));
 	}
 
 	@Override
