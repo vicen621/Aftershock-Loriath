@@ -1,19 +1,19 @@
-v.0.0.1
+v.0.0.2
 
-- This is a WIP build, just for testing and to get project pages approved. AI is in heavy works for Dirt Dragons and Graboids.
-- Shreikers are most completed.
+- Fixes random crash with Shriekers.
+- Renabled 8 Gauge Block breaking on dirt and sand.
+- Added Shells Recipe.
+- Added 8 Gauge Recipe.
+- Fixed Graboids and Dirt Dragons hitboxes on surface.
+- Graboids now have sounds.
+- Updated Shriekers searching and dying sounds SFX.
+- Dirt Dragons now attack.
+- Dirt Dragons now have sounds.
 
 Known WIP things left to do: 
-	- Dirt Dragons are missing attacks.
-	- Dirt Dragons are missing sounds.
 	- Graboids need extra hitboxes.
 	- Graboids are missing extra attacks (grabbing).
 	- Graboids are missing breaking blocks when attacking (biting/grabbing)
 	- Graboids digging in and out need some more tuning turning to only render when digging up/derender when digging down.
-	- Graboids are missing sounds.
-	- Graboids and Dirt Dragons hitbox are still on the surface. 
-	- 8 Gauge block breaking is disabled.
 	- 8 Gauge reload animation is a place holder and will be replaced.
-	- 8 Gauge recipe is missing.
-	- Shells recipe is missing.
 	- Blasters flying off needs finished.
