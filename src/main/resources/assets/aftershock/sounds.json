@@ -16,5 +16,10 @@
 	"aftershock.graboid_moving": {
 		"category": "music", "sounds": [{"name": "aftershock:graboid_moving"}]
 	},
+	"aftershock.shrieker_hurt": {
+		"category": "music", "sounds": [{"name": "aftershock:shrieker_hurt"}]
+	},
+	"aftershock.shrieker_search": {
+		"category": "music", "sounds": [{"name": "aftershock:shrieker_search"}]
 	}
 }

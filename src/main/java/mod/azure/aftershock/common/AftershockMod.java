@@ -190,6 +190,8 @@ public class AftershockMod implements ModInitializer {
 		public static SoundEvent GRABOID_DYING = of("aftershock.graboid_dying");
 		public static SoundEvent GRABOID_IDLE = of("aftershock.graboid_idle");
 		public static SoundEvent GRABOID_MOVING = of("aftershock.graboid_moving");
+		public static SoundEvent SHREIKER_HURT = of("aftershock.shrieker_hurt");
+		public static SoundEvent SHREIKER_SEARCH = of("aftershock.shrieker_search");
 
 		static SoundEvent of(String id) {
 			SoundEvent sound = SoundEvent.createVariableRangeEvent(new ResourceLocation(AftershockMod.MODID, id));

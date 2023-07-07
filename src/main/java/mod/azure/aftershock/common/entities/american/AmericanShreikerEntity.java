@@ -5,6 +5,7 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
+import mod.azure.aftershock.common.AftershockMod.ModSounds;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
 import mod.azure.aftershock.common.entities.tasks.EatFoodTask;
@@ -102,10 +103,10 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HUSK_HURT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
 			if (event.getKeyframeData().getSound().matches("looking"))
 				if (this.level().isClientSide)
-					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_AMBIENT, SoundSource.HOSTILE, 1.25F, 0.3F, true);
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.SHREIKER_SEARCH, SoundSource.HOSTILE, 1.25F, 1.0F, true);
 			if (event.getKeyframeData().getSound().matches("dying"))
 				if (this.level().isClientSide)
-					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.HOGLIN_DEATH, SoundSource.HOSTILE, 1.25F, 0.3F, true);
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.SHREIKER_HURT, SoundSource.HOSTILE, 1.25F, 1.0F, true);
 		}));
 	}
 
