@@ -186,6 +186,8 @@ public class AftershockMod implements ModInitializer {
 
 		public static SoundEvent SHOTGUN = of("aftershock.shotgun");
 		public static SoundEvent SHOTGUNRELOAD = of("aftershock.shotgunreload");
+		public static SoundEvent DIRTDRAG0N_ATTACK = of("aftershock.dirtdragon_attack");
+		public static SoundEvent DIRTDRAG0N_IDLE = of("aftershock.dirtdragon_idle");
 		public static SoundEvent GRABOID_ATTACK = of("aftershock.graboid_attacking");
 		public static SoundEvent GRABOID_DYING = of("aftershock.graboid_dying");
 		public static SoundEvent GRABOID_IDLE = of("aftershock.graboid_idle");

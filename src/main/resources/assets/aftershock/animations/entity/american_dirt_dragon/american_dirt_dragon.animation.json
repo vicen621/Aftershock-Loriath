@@ -2530,6 +2530,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"0.20": {
+					"effect": "attacking"
+				}
 			}
 		},
 		"hurt": {
@@ -5850,6 +5855,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.25": {
+					"effect": "dying"
 				}
 			}
 		},

@@ -4,6 +4,13 @@
 	},
 	"aftershock.shotgunreload": {
 		"category": "music", "sounds": [{"name": "aftershock:shotgunreload"}]
+	},
+	"aftershock.dirtdragon_attack": {
+		"category": "music", "sounds": [{"name": "aftershock:dirtdragon_attack"}]
+	},
+	"aftershock.dirtdragon_idle": {
+		"category": "music", "sounds": [{"name": "aftershock:dirtdragon_idle"}]
+	},
 	"aftershock.graboid_attacking": {
 		"category": "music", "sounds": [{"name": "aftershock:graboid_attacking"}]
 	},
