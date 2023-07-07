@@ -5,6 +5,7 @@ import java.util.List;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModMobs;
+import mod.azure.aftershock.common.AftershockMod.ModSounds;
 import mod.azure.aftershock.common.entities.base.AfterShockVibrationUser;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.base.SoundTrackingEntity;
@@ -19,7 +20,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -97,6 +100,16 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 			if (isDead)
 				return event.setAndContinue(AftershockAnimationsDefault.DEATH);
 			return event.setAndContinue(isSearching ? AftershockAnimationsDefault.DIGOUT : this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
+		}).setSoundKeyframeHandler(event -> {
+			if (event.getKeyframeData().getSound().matches("attacking"))
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.GRABOID_ATTACK, SoundSource.HOSTILE, 1.25F, 1.0F, true);
+			if (event.getKeyframeData().getSound().matches("dying"))
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.GRABOID_DYING, SoundSource.HOSTILE, 1.25F, 1.0F, true);
+			if (event.getKeyframeData().getSound().matches("digging"))
+				if (this.level().isClientSide)
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.RESPAWN_ANCHOR_SET_SPAWN, SoundSource.HOSTILE, 1.25F, 1.0F, true);
 		}));
 	}
 
@@ -283,8 +296,19 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	}
 
 	@Override
-	protected void playStepSound(BlockPos blockPos, BlockState blockState) {
+	protected SoundEvent getAmbientSound() {
+		return ModSounds.GRABOID_IDLE;
 	}
+	
+	@Override
+	protected void playStepSound(BlockPos blockPos, BlockState blockState) {
+        this.playSound(ModSounds.GRABOID_MOVING, 1.0F * 0.15f, 1.0F);
+	}
+
+//	@Override
+//	protected SoundEvent getHurtSound(DamageSource source) {
+//		return ModSounds.ABBERATION_HURT;
+//	}
 
 	// Mob logic done each tick
 	@Override

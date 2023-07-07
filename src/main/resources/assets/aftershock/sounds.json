@@ -4,5 +4,17 @@
 	},
 	"aftershock.shotgunreload": {
 		"category": "music", "sounds": [{"name": "aftershock:shotgunreload"}]
+	"aftershock.graboid_attacking": {
+		"category": "music", "sounds": [{"name": "aftershock:graboid_attacking"}]
+	},
+	"aftershock.graboid_dying": {
+		"category": "music", "sounds": [{"name": "aftershock:graboid_dying"}]
+	},
+	"aftershock.graboid_idle": {
+		"category": "music", "sounds": [{"name": "aftershock:graboid_idle"}]
+	},
+	"aftershock.graboid_moving": {
+		"category": "music", "sounds": [{"name": "aftershock:graboid_moving"}]
+	},
 	}
 }

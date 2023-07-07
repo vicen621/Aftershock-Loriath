@@ -4452,6 +4452,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"0.25": {
+					"effect": "dying"
+				}
 			}
 		},
 		"grab1": {
@@ -16436,6 +16441,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"0.7": {
+					"effect": "attacking"
+				}
 			}
 		},
 		"digout": {
@@ -17078,6 +17088,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"0.5": {
+					"effect": "digging"
+				}
 			}
 		},
 		"digin": {
@@ -17719,6 +17734,11 @@
 							"lerp_mode": "catmullrom"
 						}
 					}
+				}
+			},
+			"sound_effects": {
+				"0.25": {
+					"effect": "digging"
 				}
 			}
 		}

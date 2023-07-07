@@ -186,6 +186,10 @@ public class AftershockMod implements ModInitializer {
 
 		public static SoundEvent SHOTGUN = of("aftershock.shotgun");
 		public static SoundEvent SHOTGUNRELOAD = of("aftershock.shotgunreload");
+		public static SoundEvent GRABOID_ATTACK = of("aftershock.graboid_attacking");
+		public static SoundEvent GRABOID_DYING = of("aftershock.graboid_dying");
+		public static SoundEvent GRABOID_IDLE = of("aftershock.graboid_idle");
+		public static SoundEvent GRABOID_MOVING = of("aftershock.graboid_moving");
 
 		static SoundEvent of(String id) {
 			SoundEvent sound = SoundEvent.createVariableRangeEvent(new ResourceLocation(AftershockMod.MODID, id));
