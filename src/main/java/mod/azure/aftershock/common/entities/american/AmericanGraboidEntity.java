@@ -103,7 +103,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("attacking"))
 				if (this.level().isClientSide)
-					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.GRABOID_ATTACK, SoundSource.HOSTILE, 1.25F, 1.0F, true);
+					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.GRABOID_ATTACK, SoundSource.HOSTILE, 1.00F, 1.0F, true);
 			if (event.getKeyframeData().getSound().matches("dying"))
 				if (this.level().isClientSide)
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.GRABOID_DYING, SoundSource.HOSTILE, 1.25F, 1.0F, true);
