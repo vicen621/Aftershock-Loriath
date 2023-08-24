@@ -1,37 +1,28 @@
 {
-	"schemaVersion": 1,
-	"id": "aftershock",
-	"version": "${version}",
-	"name": "Aftershock",
-	"description": "The Food Chain Just Grew Another Link.",
-	"authors": [
-		"AzureDoom",
-		"Wolverbyte"
-	],
-	"contact": {
-		"homepage": "https://modrinth.com/mod/aftershock",
-		"sources": "https://github.com/AzureDoom/Aftershock"
-	},
-	"license": "CC-BY-NC-4.0",
-	"icon": "icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"mod.azure.aftershock.common.AftershockMod"
-		],
-		"client": [
-			"mod.azure.aftershock.client.AftershockClientInit"
-		]
-	},
-	"mixins": [
-		"aftershock.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.14.21",
-		"minecraft": ">=1.20.1",
-		"java": ">=17",
-		"fabric-api": "*",
-		"smartbrainlib": ">=1.11",
-		"azurelib": ">=1.0.17"
-	}
+  "schemaVersion" : 1,
+  "id" : "aftershock",
+  "version" : "${version}",
+  "name" : "Aftershock",
+  "description" : "The Food Chain Just Grew Another Link.",
+  "authors" : [ "AzureDoom", "Wolverbyte" ],
+  "contact" : {
+    "homepage" : "https://modrinth.com/mod/aftershock",
+    "sources" : "https://github.com/AzureDoom/Aftershock"
+  },
+  "license" : "CC-BY-NC-4.0",
+  "icon" : "icon.png",
+  "environment" : "*",
+  "entrypoints" : {
+    "main" : [ "mod.azure.aftershock.common.AftershockMod" ],
+    "client" : [ "mod.azure.aftershock.client.AftershockClientInit" ]
+  },
+  "mixins" : [ "aftershock.mixins.json" ],
+  "depends" : {
+    "fabricloader" : ">=0.14.21",
+    "minecraft" : ">=1.20.1",
+    "java" : ">=17",
+    "fabric-api" : "*",
+    "smartbrainlib" : ">=1.11",
+    "azurelib" : ">=1.0.24"
+  }
 }

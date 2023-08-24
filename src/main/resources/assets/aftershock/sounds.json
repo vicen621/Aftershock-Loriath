@@ -1,32 +1,62 @@
 {
-	"aftershock.shotgun": {
-		"category": "music", "sounds": [{"name": "aftershock:shotgun"}]
-	},
-	"aftershock.shotgunreload": {
-		"category": "music", "sounds": [{"name": "aftershock:shotgunreload"}]
-	},
-	"aftershock.dirtdragon_attack": {
-		"category": "music", "sounds": [{"name": "aftershock:dirtdragon_attack"}]
-	},
-	"aftershock.dirtdragon_idle": {
-		"category": "music", "sounds": [{"name": "aftershock:dirtdragon_idle"}]
-	},
-	"aftershock.graboid_attacking": {
-		"category": "music", "sounds": [{"name": "aftershock:graboid_attacking"}]
-	},
-	"aftershock.graboid_dying": {
-		"category": "music", "sounds": [{"name": "aftershock:graboid_dying"}]
-	},
-	"aftershock.graboid_idle": {
-		"category": "music", "sounds": [{"name": "aftershock:graboid_idle"}]
-	},
-	"aftershock.graboid_moving": {
-		"category": "music", "sounds": [{"name": "aftershock:graboid_moving"}]
-	},
-	"aftershock.shrieker_hurt": {
-		"category": "music", "sounds": [{"name": "aftershock:shrieker_hurt"}]
-	},
-	"aftershock.shrieker_search": {
-		"category": "music", "sounds": [{"name": "aftershock:shrieker_search"}]
-	}
+  "aftershock.shotgun" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:shotgun"
+    } ]
+  },
+  "aftershock.shotgunreload" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:shotgunreload"
+    } ]
+  },
+  "aftershock.dirtdragon_attack" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:dirtdragon_attack"
+    } ]
+  },
+  "aftershock.dirtdragon_idle" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:dirtdragon_idle"
+    } ]
+  },
+  "aftershock.graboid_attacking" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:graboid_attacking"
+    } ]
+  },
+  "aftershock.graboid_dying" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:graboid_dying"
+    } ]
+  },
+  "aftershock.graboid_idle" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:graboid_idle"
+    } ]
+  },
+  "aftershock.graboid_moving" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:graboid_moving"
+    } ]
+  },
+  "aftershock.shrieker_hurt" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:shrieker_hurt"
+    } ]
+  },
+  "aftershock.shrieker_search" : {
+    "category" : "music",
+    "sounds" : [ {
+      "name" : "aftershock:shrieker_search"
+    } ]
+  }
 }
