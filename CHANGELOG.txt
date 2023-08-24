@@ -1,14 +1,10 @@
-v.0.0.2
+v.0.0.3
 
-- Fixes random crash with Shriekers.
-- Renabled 8 Gauge Block breaking on dirt and sand.
-- Added Shells Recipe.
-- Added 8 Gauge Recipe.
-- Fixed Graboids and Dirt Dragons hitboxes on surface.
-- Graboids now have sounds.
-- Updated Shriekers searching and dying sounds SFX.
-- Dirt Dragons now attack.
-- Dirt Dragons now have sounds.
+- Tweaks eating goal.
+- Lower sound of Graboids
+- Adds datapack tag for Gigeresque to blacklist Graboids from being picked up.
+- Adds new icon
+- Switched Reload to AzureLib keybind. Requires AzureLib 1.0.25
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.
