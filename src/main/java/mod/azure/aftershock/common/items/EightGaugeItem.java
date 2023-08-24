@@ -5,12 +5,12 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.netty.buffer.Unpooled;
-import mod.azure.aftershock.client.AftershockClientInit;
 import mod.azure.aftershock.client.render.EightGaugeRender;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModItems;
 import mod.azure.aftershock.common.AftershockMod.ModSounds;
 import mod.azure.aftershock.common.entities.projectiles.ShellEntity;
+import mod.azure.azurelib.Keybindings;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
 import mod.azure.azurelib.animatable.client.RenderProvider;
@@ -96,7 +96,7 @@ public class EightGaugeItem extends BaseGunItem {
 	public void inventoryTick(ItemStack stack, Level world, Entity entity, int slot, boolean selected) {
 		if (world.isClientSide)
 			if (((Player) entity).getMainHandItem().getItem() instanceof EightGaugeItem) {
-				if (AftershockClientInit.reload.isDown() && selected) {
+				if (Keybindings.RELOAD.isDown() && selected) {
 					var passedData = new FriendlyByteBuf(Unpooled.buffer());
 					passedData.writeBoolean(true);
 					ClientPlayNetworking.send(AftershockMod.SHOTGUN, passedData);
