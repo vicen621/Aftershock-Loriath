@@ -6,6 +6,7 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+    	maven { url  = 'https://plugins.gradle.org/m2/' }
     }
 }
 rootProject.name = 'aftershock-1.20'
