@@ -2,8 +2,10 @@ package mod.azure.aftershock.common.entities.tasks;
 
 import java.util.function.Consumer;
 
+import mod.azure.aftershock.common.entities.american.AmericanDirtDragonEntity;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 
 public abstract class CustomDelayedMeleeBehaviour<E extends BaseEntity> extends ExtendedBehaviour<E> {
@@ -43,6 +45,13 @@ public abstract class CustomDelayedMeleeBehaviour<E extends BaseEntity> extends 
 			entity.setAttackingState(0);
 		if (entity.getAttckingState() == 0)
 			entity.setAttackingState(2);
+		if (entity instanceof AmericanDirtDragonEntity dirt)
+			if (dirt.getTarget() != null && !dirt.level().isClientSide()) {
+				var vec3d2 = new Vec3(dirt.getTarget().getX() - dirt.getX(), 0.0, dirt.getTarget().getZ() - dirt.getZ());
+				vec3d2 = vec3d2.normalize().scale(0.8).add(dirt.getDeltaMovement().scale(0.4));
+				dirt.setDeltaMovement(vec3d2.x, 0.3F, vec3d2.z);
+			}
+		entity.triggerAnim("livingController", "attack");
 	}
 
 	@Override

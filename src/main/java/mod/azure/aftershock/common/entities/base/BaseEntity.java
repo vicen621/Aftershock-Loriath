@@ -106,6 +106,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 	@Override
 	protected void tickDeath() {
 		++this.deathTime;
+		this.triggerAnim("livingController", "death");
 		if (this.deathTime == 120)
 			this.remove(Entity.RemovalReason.KILLED);
 	}
@@ -291,19 +292,19 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 		}
 	}
 
-    @Override
-    public VibrationSystem.Data getVibrationData() {
-        return this.vibrationData;
-    }
+	@Override
+	public VibrationSystem.Data getVibrationData() {
+		return this.vibrationData;
+	}
 
-    @Override
-    public VibrationSystem.User getVibrationUser() {
-        return this.vibrationUser;
-    }
+	@Override
+	public VibrationSystem.User getVibrationUser() {
+		return this.vibrationUser;
+	}
 
 	@Override
 	public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> biConsumer) {
-		if (level()instanceof ServerLevel serverLevel)
+		if (level() instanceof ServerLevel serverLevel)
 			biConsumer.accept(this.dynamicGameEventListener, serverLevel);
 	}
 
@@ -350,7 +351,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 				var y = target.getY(0.5) - (this.getY(0.75));
 				var z = target.getZ() - (this.getZ() + vector3d.z * 2);
 				var smallFireball = new SmallFireball(this.level(), this, x, y, z);
-				smallFireball.setPos(smallFireball.getX(), this.getY(0.5) + 0.5, smallFireball.getZ());
+				smallFireball.setPos(smallFireball.getX(), this.getY(0.4) + 0.4, smallFireball.getZ());
 				world.addFreshEntity(smallFireball);
 			}
 		}
@@ -365,7 +366,7 @@ public abstract class BaseEntity extends Monster implements GeoEntity, Growable,
 			searchingCooldown = -60;
 			this.setSearchingStatus(false);
 		}
-		if (this.level()instanceof ServerLevel serverLevel)
+		if (this.level() instanceof ServerLevel serverLevel)
 			AzureTicker.tick(serverLevel, this.vibrationData, this.vibrationUser);
 	}
 

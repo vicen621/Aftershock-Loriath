@@ -29,7 +29,7 @@ public class AmericanGraboidEntityRenderer extends GeoEntityRenderer<AmericanGra
 		stack.scale(entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor, entity.getGrowth() > 1200 ? 1.1F : scaleFactor);
 		if (entity.isInSand() && !entity.isSearching() && entity.getAttckingState() <= 2)
 			stack.translate(0, -2.9, 0);
-		if (entity.isInSand() && entity.isSearching())
+		if (entity.isInSand() && entity.isSearching()) 
 			stack.translate(0, -0.1, 0);
 		if (entity.isInSand() && entity.getAttckingState() == 5)
 			stack.translate(0, -0.5, 0);

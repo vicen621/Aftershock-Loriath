@@ -10,14 +10,13 @@ import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
 import mod.azure.aftershock.common.entities.tasks.EatFoodTask;
 import mod.azure.aftershock.common.entities.tasks.KillLightsTask;
+import mod.azure.aftershock.common.entities.tasks.MeleeAttack;
 import mod.azure.aftershock.common.entities.tasks.StrafeScreamTarget;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
 import mod.azure.aftershock.common.helpers.AttackType;
 import mod.azure.azurelib.ai.pathing.AzureNavigation;
 import mod.azure.azurelib.core.animation.AnimatableManager.ControllerRegistrar;
-import mod.azure.azurelib.core.animation.Animation.LoopType;
 import mod.azure.azurelib.core.animation.AnimationController;
-import mod.azure.azurelib.core.animation.RawAnimation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +48,6 @@ import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
@@ -78,22 +76,15 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			var moltTimer = this.getGrowth() <= 42000;
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying() && moltTimer;
 			var isHurt = this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead && moltTimer;
-			var isEating = (this.isEating() && !isDead && !this.isPuking() && moltTimer);
-			var isPuking = (this.isPuking() && !isDead && !this.isEating() && moltTimer);
-			var isSearching = this.isSearching() && !this.isEating() && !this.isPuking() && moltTimer;
-			var isScreaming = (this.isScreaming() && !isDead && !this.isEating() && !this.isPuking() && moltTimer);
 			var isNewBorn = (this.isNewBorn() && !isDead && !this.isEating() && !this.isPuking() && !this.isScreaming() && moltTimer);
-			var isAttacking = getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && moltTimer && !isDead;
 			var isMolting = this.getGrowth() >= 42000 && !isDead;
 			var movingNoArggo = event.isMoving() && !this.isAggressive() && !isHurt && moltTimer;
 			var movingArggo = event.isMoving() && this.isAggressive() && !isHurt && moltTimer;
-			if (isAttacking)
-				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
 			if (movingNoArggo)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
 			if (movingArggo)
 				return event.setAndContinue(AftershockAnimationsDefault.RUNSCREAM);
-			return event.setAndContinue(isDead ? AftershockAnimationsDefault.DEATH : isHurt ? AftershockAnimationsDefault.HURT : isEating ? AftershockAnimationsDefault.GRAB : isPuking ? AftershockAnimationsDefault.PUKE : isScreaming ? AftershockAnimationsDefault.SCREAM : isNewBorn ? AftershockAnimationsDefault.SPAWN : isSearching ? AftershockAnimationsDefault.LOOK : isMolting ? AftershockAnimationsDefault.MOLT : AftershockAnimationsDefault.IDLE);
+			return event.setAndContinue(isHurt ? AftershockAnimationsDefault.HURT : isNewBorn ? AftershockAnimationsDefault.SPAWN : isMolting ? AftershockAnimationsDefault.MOLT : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("puking"))
 				if (this.level().isClientSide)
@@ -107,7 +98,13 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			if (event.getKeyframeData().getSound().matches("dying"))
 				if (this.level().isClientSide)
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.SHREIKER_HURT, SoundSource.HOSTILE, 1.25F, 1.0F, true);
-		}));
+		}).triggerableAnim("death", AftershockAnimationsDefault.DEATH)
+				.triggerableAnim("grab", AftershockAnimationsDefault.GRAB)
+				.triggerableAnim("puke", AftershockAnimationsDefault.PUKE)
+				.triggerableAnim("scream", AftershockAnimationsDefault.SCREAM)
+				.triggerableAnim("attack", AftershockAnimationsDefault.ATTACK)
+				.triggerableAnim("bite", AftershockAnimationsDefault.BITE)
+				.triggerableAnim("look", AftershockAnimationsDefault.LOOK));
 	}
 
 	// Brain logic
@@ -164,9 +161,9 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 				// Removes entity from being a target.
 				new InvalidateAttackTarget<>().invalidateIf((target, entity) -> !target.isAlive() || !entity.hasLineOfSight(target)),
 				// Moves to traget to attack
-				new SetWalkTargetToAttackTarget<>().speedMod(1.25F).startCondition(entity -> !this.isPuking()),
+				new SetWalkTargetToAttackTarget<>().speedMod(1.5F).startCondition(entity -> !this.isPuking()),
 				// Attacks the target if in range and is grown enough
-				new AnimatableMeleeAttack<>(5).startCondition(entity -> this.getGrowth() >= 1200));
+				new MeleeAttack<>(5).startCondition(entity -> this.getGrowth() >= 1200));
 	}
 
 	@Override
@@ -243,23 +240,24 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 			this.yHeadRot = 0.0f;
 		}
 
-		// Screaming logic when attacking
-		if (this.isScreaming())
-			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 7, 100, false, false));
-		if (this.isScreaming() && !this.isDeadOrDying() && !this.isSearching()) {
-			screamingCounter++;
-			if (screamingCounter >= 28) {
-				screamingCounter = 0;
-				this.setScreamingStatus(false);
-			}
-		}
-
 		// Naturally spawning birth logic
 		if (this.isNewBorn() && !this.isDeadOrDying() && !this.isSearching() && !this.isPuking() && !this.isScreaming()) {
 			newbornCounter++;
 			if (newbornCounter >= 800) {
 				newbornCounter = 0;
 				this.setNewBornStatus(false);
+			}
+		}
+
+		// Screaming logic when attacking
+		if (this.isScreaming()) {
+			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 7, 100, false, false));
+		}
+		if (this.isScreaming() && !this.isDeadOrDying() && !this.isSearching()) {
+			screamingCounter++;
+			if (screamingCounter >= 5) {
+				screamingCounter = 0;
+				this.setScreamingStatus(false);
 			}
 		}
 
@@ -330,10 +328,13 @@ public class AmericanShreikerEntity extends BaseEntity implements SmartBrainOwne
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		if (!this.isDeadOrDying() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
 			searchingCooldown++;
-			if (searchingCooldown == 10)
+			if (searchingCooldown == 10) {
 				this.setSearchingStatus(true);
+				this.triggerAnim("livingController", "look");
+				this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
+			}
 			if (searchingCooldown >= 68) {
-				searchingCooldown = -60;
+				searchingCooldown = -120;
 				this.setSearchingStatus(false);
 			}
 		}

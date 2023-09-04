@@ -82,13 +82,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 	public void registerControllers(ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "livingController", 5, event -> {
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
-			// Play animation attacking
-			if (event.getAnimatable().getAttckingState() == 2 && !isDead)
-				return event.setAndContinue(RawAnimation.begin().then("attack", LoopType.PLAY_ONCE));
 			if (event.isMoving() && this.getLastDamageSource() == null)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
-			if (isDead)
-				return event.setAndContinue(AftershockAnimationsDefault.DEATH);
 			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("attacking"))
@@ -97,7 +92,8 @@ public class AmericanDirtDragonEntity extends SoundTrackingEntity implements Sma
 			if (event.getKeyframeData().getSound().matches("dying"))
 				if (this.level().isClientSide)
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), ModSounds.SHREIKER_HURT, SoundSource.HOSTILE, 1.5F, 0.3F, true);
-		}));
+		}).triggerableAnim("death", AftershockAnimationsDefault.DEATH)
+				.triggerableAnim("attack", RawAnimation.begin().then("attack", LoopType.PLAY_ONCE)));
 	}
 
 	// Brain logic

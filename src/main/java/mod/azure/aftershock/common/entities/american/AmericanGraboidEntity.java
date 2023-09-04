@@ -86,20 +86,10 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	public void registerControllers(ControllerRegistrar controllers) {
 		controllers.add(new AnimationController<>(this, "livingController", 5, event -> {
 			var isDead = this.dead || this.getHealth() < 0.01 || this.isDeadOrDying();
-			var isSearching = this.isSearching() && !this.isEating() && !this.isPuking();
-			// Play animation attacking
-			if (event.getAnimatable().getAttckingState() == 2 && !isDead)
-				return event.setAndContinue(RawAnimation.begin().then("bite", LoopType.HOLD_ON_LAST_FRAME));
-			// Play animation attacking
-			if (event.getAnimatable().getAttckingState() == 5 && !isDead)
-				return event.setAndContinue(RawAnimation.begin().then("digin", LoopType.HOLD_ON_LAST_FRAME));
 			// Play animation when moving
 			if (event.isMoving() && this.getLastDamageSource() == null)
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
-			// Play animation when dead
-			if (isDead)
-				return event.setAndContinue(AftershockAnimationsDefault.DEATH);
-			return event.setAndContinue(isSearching ? AftershockAnimationsDefault.DIGOUT : this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
+			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("attacking"))
 				if (this.level().isClientSide)
@@ -110,7 +100,7 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 			if (event.getKeyframeData().getSound().matches("digging"))
 				if (this.level().isClientSide)
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.RESPAWN_ANCHOR_SET_SPAWN, SoundSource.HOSTILE, 1.25F, 1.0F, true);
-		}));
+		}).triggerableAnim("attack", RawAnimation.begin().then("bite", LoopType.PLAY_ONCE)).triggerableAnim("death", AftershockAnimationsDefault.DEATH).triggerableAnim("look", AftershockAnimationsDefault.DIGOUT).triggerableAnim("digin", RawAnimation.begin().then("digin", LoopType.PLAY_ONCE)));
 	}
 
 	// Brain logic
@@ -299,10 +289,10 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 	protected SoundEvent getAmbientSound() {
 		return ModSounds.GRABOID_IDLE;
 	}
-	
+
 	@Override
 	protected void playStepSound(BlockPos blockPos, BlockState blockState) {
-        this.playSound(ModSounds.GRABOID_MOVING, 1.0F * 0.15f, 1.0F);
+		this.playSound(ModSounds.GRABOID_MOVING, 1.0F * 0.15f, 1.0F);
 	}
 
 //	@Override
@@ -370,14 +360,18 @@ public class AmericanGraboidEntity extends SoundTrackingEntity implements SmartB
 		var velocityLength = this.getDeltaMovement().horizontalDistance();
 		if (!this.isDeadOrDying() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
 			searchingCooldown++;
+			this.getNavigation().stop();
 			if (searchingCooldown == 50) {
+				this.triggerAnim("livingController", "look");
+				this.level().addParticle(ParticleTypes.EXPLOSION_EMITTER, this.getX(), this.getSurface((int) Math.floor(this.getX()), (int) Math.floor(this.getY()), (int) Math.floor(this.getZ())) - 0.35F, this.getZ(), 0, 0, 0);
 				this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200, 100, false, false));
 				this.getNavigation().stop();
 				this.setSearchingStatus(true);
 			}
+			if (searchingCooldown >= 168) 
+				this.triggerAnim("livingController", "digin");
 			if (searchingCooldown >= 208) {
 				searchingCooldown = -600;
-				this.setAttackingState(5);
 				this.setSearchingStatus(false);
 			}
 		}

@@ -1,10 +1,6 @@
-v.0.0.3
+v.0.0.4
 
-- Tweaks eating goal.
-- Lower sound of Graboids
-- Adds datapack tag for Gigeresque to blacklist Graboids from being picked up.
-- Adds new icon
-- Switched Reload to AzureLib keybind. Requires AzureLib 1.0.25
+- Moved all animations to triggers instead of controller checks
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.

@@ -13,6 +13,8 @@ import mod.azure.aftershock.common.entities.american.AmericanShreikerEntity;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import mod.azure.aftershock.common.entities.sensors.AftershockMemoryTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -67,20 +69,20 @@ public class EatFoodTask<E extends BaseEntity> extends DelayedFoodBehaviour<E> {
 		if (itemLocation.stream().findFirst().get() == null)
 			return;
 
-		if (!itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2)) {
-			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(itemLocation.stream().findFirst().get().blockPosition(), 1.5F, 0));
-			entity.setEatingStatus(false);
-		}
-		if (itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.5)) {
-			entity.setEatingStatus(true);
-		}
+		if (!itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2))
+			BrainUtils.setMemory(entity, MemoryModuleType.WALK_TARGET, new WalkTarget(itemLocation.stream().findFirst().get().blockPosition(), 1.15F, 0));
 		if (itemLocation.stream().findFirst().get().blockPosition().closerToCenterThan(entity.position(), 1.2)) {
-			if (entity instanceof AmericanShreikerEntity shriker)
+			if (entity instanceof AmericanShreikerEntity shriker) {
 				shriker.setPukingStatus(true);
+				shriker.triggerAnim("livingController", "puke");
+			}
 			entity.heal(2.5F);
-			if (entity instanceof AmericanBlasterEntity blaster)
+			if (entity instanceof AmericanBlasterEntity blaster) {
 				blaster.eatingCounter++;
+				entity.triggerAnim("livingController", "eat");
+			}
 			entity.getNavigation().stop();
+			entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 100, false, false));
 			itemLocation.stream().findFirst().get().getItem().finishUsingItem(entity.level(), entity);
 			itemLocation.stream().findFirst().get().getItem().shrink(1);
 		}

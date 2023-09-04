@@ -7,6 +7,8 @@ import com.mojang.datafixers.util.Pair;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -27,6 +29,11 @@ public class StrafeScreamTarget<E extends BaseEntity> extends ExtendedBehaviour<
 	@Override
 	protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
 		return MEMORY_REQUIREMENTS;
+	}
+
+	@Override
+	protected void start(E entity) {
+		super.start(entity);
 	}
 
 	public StrafeScreamTarget<E> stopStrafingWhen(Predicate<E> predicate) {
@@ -60,6 +67,8 @@ public class StrafeScreamTarget<E extends BaseEntity> extends ExtendedBehaviour<
 		if (distanceToTarget <= this.strafeDistanceSqr) {
 			entity.getNavigation().stop();
 			entity.setScreamingStatus(true);
+			entity.triggerAnim("livingController", "scream");
+			entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
 			this.strafeCounter++;
 		} else {
 			entity.getNavigation().moveTo(target, this.speedMod);

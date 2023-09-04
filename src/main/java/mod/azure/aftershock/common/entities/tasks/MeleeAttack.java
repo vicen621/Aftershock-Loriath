@@ -10,15 +10,14 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mod.azure.aftershock.common.entities.base.BaseEntity;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
-public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E> {
+public class MeleeAttack<E extends BaseEntity> extends CustomDelayedBehaviour<E> {
 	private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_PRESENT), Pair.of(MemoryModuleType.ATTACK_COOLING_DOWN, MemoryStatus.VALUE_ABSENT));
 
 	protected Function<E, Integer> attackIntervalSupplier = entity -> 20;
@@ -26,7 +25,7 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 	@Nullable
 	protected LivingEntity target = null;
 
-	public ShootFireTask(int delayTicks) {
+	public MeleeAttack(int delayTicks) {
 		super(delayTicks);
 	}
 
@@ -36,7 +35,7 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 	 * @param supplier The tick value provider
 	 * @return this
 	 */
-	public ShootFireTask<E> attackInterval(Function<E, Integer> supplier) {
+	public MeleeAttack<E> attackInterval(Function<E, Integer> supplier) {
 		this.attackIntervalSupplier = supplier;
 
 		return this;
@@ -51,17 +50,20 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 	protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
 		this.target = BrainUtils.getTargetOfEntity(entity);
 
-		return entity.getSensing().hasLineOfSight(this.target) && !entity.isWithinMeleeAttackRange(this.target);
+		return entity.getSensing().hasLineOfSight(this.target) && entity.isWithinMeleeAttackRange(this.target);
 	}
 
 	@Override
 	protected void start(E entity) {
+		entity.swing(InteractionHand.MAIN_HAND);
 		BehaviorUtils.lookAtEntity(entity, this.target);
+		entity.setAttackingState(0);
 	}
 
 	@Override
 	protected void stop(E entity) {
 		this.target = null;
+		entity.setAttackingState(0);
 	}
 
 	@Override
@@ -71,11 +73,13 @@ public class ShootFireTask<E extends BaseEntity> extends DelayedFireBehaviour<E>
 		if (this.target == null)
 			return;
 
-		if (!entity.getSensing().hasLineOfSight(this.target) || entity.isWithinMeleeAttackRange(this.target))
+		if (!entity.getSensing().hasLineOfSight(this.target) || !entity.isWithinMeleeAttackRange(this.target))
 			return;
 
-		entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 50, 100, false, false));
-		entity.shootFlames(this.target);
+		BehaviorUtils.lookAtEntity(entity, this.target);
+
+		entity.doHurtTarget(this.target);
+
 	}
 
 }

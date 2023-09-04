@@ -11,6 +11,7 @@ import mod.azure.aftershock.common.entities.nav.BlasterFlyControl;
 import mod.azure.aftershock.common.entities.sensors.ItemEntitySensor;
 import mod.azure.aftershock.common.entities.tasks.EatFoodTask;
 import mod.azure.aftershock.common.entities.tasks.KillLightsTask;
+import mod.azure.aftershock.common.entities.tasks.MeleeAttack;
 import mod.azure.aftershock.common.entities.tasks.ShootFireTask;
 import mod.azure.aftershock.common.entities.tasks.StrafeScreamTarget;
 import mod.azure.aftershock.common.helpers.AftershockAnimationsDefault;
@@ -59,7 +60,6 @@ import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
@@ -100,26 +100,15 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		controllers.add(new AnimationController<>(this, "livingController", 0, event -> {
 			var isDead = event.getAnimatable().dead || event.getAnimatable().getHealth() < 0.01 || event.getAnimatable().isDeadOrDying();
 			var isNewBorn = (event.getAnimatable().isNewBorn() && !isDead && !this.isEating() && !event.getAnimatable().isScreaming() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
-			var isSearching = event.getAnimatable().isSearching() && event.getAnimatable().onGround() && !event.getAnimatable().isEating() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp();
-			var isScreaming = (event.getAnimatable().getAttckingState() == 1 && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking() && !event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp());
-			var isPassedout = (event.getAnimatable().isPassedOut() && !event.getAnimatable().isWakingUp() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
-			var isWakingup = (event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
-			var isLayingEgg = (event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
-			var isTakingOff = (event.getAnimatable().isTakingOff() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
 			var isSearchingFlying = (event.getAnimatable().isSearchingFlying() && !event.getAnimatable().onGround() && !event.getAnimatable().isLayingEgg() && !event.getAnimatable().isWakingUp() && !event.getAnimatable().isPassedOut() && !isDead && !event.getAnimatable().isEating() && !event.getAnimatable().isPuking());
-			var isAttacking = getCurrentAttackType() != AttackType.NONE && attackProgress > 0 && !isDead;
 			var movingArggo = event.isMoving() && event.getAnimatable().isAggressive();
-			if (isAttacking)
-				return event.setAndContinue(RawAnimation.begin().then(AttackType.animationMappings.get(getCurrentAttackType()), LoopType.PLAY_ONCE));
 			if (event.isMoving() && !this.isAggressive() && this.getLastDamageSource() == null && this.onGround())
 				return event.setAndContinue(AftershockAnimationsDefault.WALK);
 			if (movingArggo && this.getLastDamageSource() == null && this.onGround())
 				return event.setAndContinue(AftershockAnimationsDefault.RUN);
 			if (this.getLastDamageSource() == null && !this.onGround() && !isSearchingFlying)
 				return event.setAndContinue(AftershockAnimationsDefault.GLIDING);
-			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT
-					: isTakingOff ? AftershockAnimationsDefault.TAKE_OFF
-							: isLayingEgg ? AftershockAnimationsDefault.LAY : isSearching ? AftershockAnimationsDefault.LOOK : isSearching ? AftershockAnimationsDefault.GLIDING_LOOK : isPassedout ? AftershockAnimationsDefault.PASSOUT : isWakingup ? AftershockAnimationsDefault.WAKEUP : isNewBorn ? AftershockAnimationsDefault.BIRTH : isScreaming ? AftershockAnimationsDefault.BLOW_TORCH : isDead ? AftershockAnimationsDefault.DEATH : AftershockAnimationsDefault.IDLE);
+			return event.setAndContinue(this.getLastDamageSource() != null && this.hurtDuration > 0 && !isDead ? AftershockAnimationsDefault.HURT : isNewBorn ? AftershockAnimationsDefault.BIRTH : AftershockAnimationsDefault.IDLE);
 		}).setSoundKeyframeHandler(event -> {
 			if (event.getKeyframeData().getSound().matches("takeoff"))
 				if (this.level().isClientSide)
@@ -139,7 +128,18 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			if (event.getKeyframeData().getSound().matches("dying"))
 				if (this.level().isClientSide)
 					this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.LLAMA_DEATH, SoundSource.HOSTILE, 1.25F, 0.1F, true);
-		}));
+		}).triggerableAnim("death", AftershockAnimationsDefault.DEATH)
+				.triggerableAnim("scream", AftershockAnimationsDefault.BLOW_TORCH)
+				.triggerableAnim("eat", RawAnimation.begin().then("eating", LoopType.PLAY_ONCE))
+				.triggerableAnim("attack", AftershockAnimationsDefault.ATTACK)
+				.triggerableAnim("takeoff", AftershockAnimationsDefault.TAKE_OFF)
+				.triggerableAnim("bite", AftershockAnimationsDefault.BITE)
+				.triggerableAnim("lay", AftershockAnimationsDefault.LAY)
+				.triggerableAnim("unlay", AftershockAnimationsDefault.UNLAY)
+				.triggerableAnim("passout", AftershockAnimationsDefault.PASSOUT)
+				.triggerableAnim("wakeup", AftershockAnimationsDefault.WAKEUP)
+				.triggerableAnim("look_flying", AftershockAnimationsDefault.GLIDING_LOOK)
+				.triggerableAnim("look", AftershockAnimationsDefault.LOOK));
 	}
 
 	// Brain logic
@@ -198,7 +198,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 				// Moves to traget to attack
 				new SetWalkTargetToAttackTarget<>().speedMod(1.5F).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
 				// Attacks the target if in range and is grown enough
-				new AnimatableMeleeAttack<>(5).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
+				new MeleeAttack<>(5).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()),
 				// Shoots fire at target, currently uses small fire. To be redone before first release.
 				new ShootFireTask<>(20).cooldownFor(entity -> 200).startCondition(entity -> !this.isPassedOut() || !this.isWakingUp()).stopIf(entity -> this.isPassedOut() || this.isWakingUp()));
 	}
@@ -411,6 +411,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 			this.setDeltaMovement(0.0F, -1.0F, 0.0F);
 		if (this.takeoffCounter == 490) {
 			this.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 90, 100, false, false));
+			this.triggerAnim("livingController", "takeoff");
 			this.setTakingOff(true);
 			this.setSearchingStatus(false);
 			this.setWakingUpStatus(false);
@@ -447,6 +448,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		if (layEggCounter == 1980) {
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 100, false, false));
 			this.setEggStatus(true);
+			this.triggerAnim("livingController", "lay");
 			this.setSearchingStatus(false);
 			this.setWakingUpStatus(false);
 			this.setPassedOutStatus(false);
@@ -461,6 +463,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		if (layEggCounter >= 2020) {
 			this.layEggCounter = 0;
 			this.setEggStatus(false);
+			this.triggerAnim("livingController", "unlay");
 			this.setSearchingStatus(false);
 			this.setWakingUpStatus(false);
 			this.setPassedOutStatus(false);
@@ -478,12 +481,14 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		if (this.eatingCounter >= 3 && !this.isWakingUp()) {
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 100, false, false));
 			this.setAggressive(false);
+			this.triggerAnim("livingController", "passout");
 			this.setPassedOutStatus(true);
 			this.passoutCounter++;
 		}
 		if (this.passoutCounter >= 600) {
 			this.passoutCounter = -60;
 			this.setPassedOutStatus(false);
+			this.triggerAnim("livingController", "wakeup");
 			this.setWakingUpStatus(true);
 			this.setAggressive(false);
 			this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 160, 100, false, false));
@@ -513,6 +518,7 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 						if (this.swingingArm != null)
 							this.swing(swingingArm);
 						breakingCounter = -90;
+						this.triggerAnim("livingController", "attack");
 						if (level().isClientSide())
 							this.playSound(SoundEvents.ARMOR_STAND_BREAK, 0.2f + random.nextFloat() * 0.2f, 0.9f + random.nextFloat() * 0.15f);
 					}
@@ -524,8 +530,14 @@ public class AmericanBlasterEntity extends BaseEntity implements SmartBrainOwner
 		// Searching Logic
 		if (!this.isDeadOrDying() && !this.isPassedOut() && !this.isWakingUp() && !this.isEating() && !this.isNewBorn() && !this.isDeadOrDying() && !this.isPuking() && !this.isScreaming() && (velocityLength == 0 && this.getDeltaMovement().horizontalDistance() == 0.0 && !this.isAggressive())) {
 			searchingCooldown++;
-			if (searchingCooldown == 10)
+			if (searchingCooldown == 10) {
 				this.setSearchingStatus(true);
+				if (this.onGround())
+					this.triggerAnim("livingController", "look");
+				else
+					this.triggerAnim("livingController", "look_flying");
+				this.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 100, false, false));
+			}
 			if (searchingCooldown >= 68) {
 				searchingCooldown = -200;
 				this.setSearchingStatus(false);
