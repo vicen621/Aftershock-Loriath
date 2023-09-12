@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.1-SNAPSHOT'
+	id 'fabric-loom' version '1.3-SNAPSHOT'
 	id 'maven-publish'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
@@ -12,9 +12,11 @@ import com.modrinth.minotaur.dependencies.ModDependency
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
+base {
+    archivesName = project.modName
+}
+version = project.modVersion
+group = project.mavenGroup
 
 repositories {
 	maven { url 'https://api.modrinth.com/maven' }
@@ -110,7 +112,7 @@ if (file('key.properties').exists()) {
 		
 		token = modrinthProp.getProperty('modrinthKey')
 		projectId = '5mniBzZH' 
-		versionNumber = project.mod_version 
+		versionNumber = project.modVersion 
 		uploadFile = remapJar 
 		changelog = rootProject.file("CHANGELOG.txt").text
 		gameVersions = ['1.20.1']
