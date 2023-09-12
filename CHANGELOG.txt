@@ -1,6 +1,6 @@
-v.0.0.4
+v.0.0.5
 
-- Moved all animations to triggers instead of controller checks
+- Removed Gig datapack as that's handled there now.
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.
