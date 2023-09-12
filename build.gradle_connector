@@ -1,0 +1,125 @@
+plugins {
+	id 'fabric-loom' version '1.3-SNAPSHOT'
+	id 'maven-publish'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "com.modrinth.minotaur" version "2.+"
+}
+
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import com.modrinth.minotaur.dependencies.ModDependency
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+base {
+    archivesName = project.modNameConnector
+}
+version = project.modVersion
+group = project.mavenGroup
+
+repositories {
+	maven { url 'https://api.modrinth.com/maven' }
+    maven { url 'https://dl.cloudsmith.io/public/azuredoom-mods/azurelib/maven/' }
+    maven { url 'https://dl.cloudsmith.io/public/tslat/sbl/maven/' }
+	maven { url "https://cfa2.cursemaven.com" }
+    maven { url "https://maven.terraformersmc.com" }
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-1.20:${project.sbl_version}"
+	modImplementation "net.tslat.smartbrainlib:SmartBrainLib-common-1.20:${project.sbl_version}"
+  	modImplementation "mod.azure.azurelib:azurelib-fabric-1.20.1:${project.azurelib_version}"
+	include "mod.azure.azurelib:azurelib-fabric-${project.minecraft_version}:${project.azurelib_version}"
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+	doLast {
+        def jsonMinifyStart = System.currentTimeMillis()
+        def jsonMinified = 0
+        def jsonBytesSaved = 0
+        fileTree(dir: outputs.files.asPath, include: '**/*.json').each { 
+            File file = it
+            jsonMinified++
+            def oldLength = file.length()
+            file.text = JsonOutput.toJson(new JsonSlurper().parse(file))
+            jsonBytesSaved += oldLength - file.length()
+        }
+        println('Minified ' + jsonMinified + ' json files. Saved ' + jsonBytesSaved + ' bytes. Took ' + (System.currentTimeMillis() - jsonMinifyStart) + 'ms.')
+    }
+}
+
+if (file('key.properties').exists()) {
+    curseforge {
+
+    	def curseProp = new Properties()
+    	File secretPropsFile = file("key.properties")
+    	curseProp.load(secretPropsFile.newInputStream())
+
+    	project {
+        	apiKey = curseProp.getProperty('curseKey')
+        	id = "834959"
+        	releaseType = "release"
+        	changelogType = 'text'
+        	changelog = file('CHANGELOG.txt')
+			addGameVersion("1.20.1")
+			addGameVersion("Forge")
+			addGameVersion("Java 17")
+
+        	relations {
+            	requiredDependency 'forgified-fabric-api'  
+            	requiredDependency 'sinytra-connector'  
+            	requiredDependency 'smartbrainlib' 
+        	}
+        	mainArtifact(remapJar)
+
+        	afterEvaluate {
+            	uploadTask.dependsOn("remapJar")
+        	}
+    	}
+    	options {
+        	forgeGradleIntegration = false
+    	}
+    }
+}
+
+if (file('key.properties').exists()) {
+	modrinth {
+		def modrinthProp = new Properties()
+		File secretPropsFile = file("key.properties")
+		modrinthProp.load(secretPropsFile.newInputStream())
+		
+		token = modrinthProp.getProperty('modrinthKey')
+		projectId = '5mniBzZH' 
+		versionNumber = project.modVersion 
+		uploadFile = remapJar 
+		changelog = rootProject.file("CHANGELOG.txt").text
+		gameVersions = ['1.20.1']
+		loaders = ['forge']
+		dependencies { 
+        	required.project "connector"
+        	required.project "forgified-fabric-api"
+        	required.project "smartbrainlib"
+   		}
+	}
+}
