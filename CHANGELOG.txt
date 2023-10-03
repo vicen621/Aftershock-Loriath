@@ -1,6 +1,6 @@
-v.0.0.5
+v.0.0.5b
 
-- Removed Gig datapack as that's handled there now.
+- Updates bundled AzureLib version to latest.
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.
