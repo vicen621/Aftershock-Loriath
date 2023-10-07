@@ -24,7 +24,6 @@ import mod.azure.aftershock.common.items.SeismographBlockItem;
 import mod.azure.aftershock.common.structures.GraniteEggStructure;
 import mod.azure.aftershock.common.structures.RedSandEggStructure;
 import mod.azure.aftershock.common.structures.SandEggStructure;
-import mod.azure.azurelib.AzureLib;
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.format.ConfigFormats;
 import mod.azure.azurelib.items.AzureSpawnEgg;
@@ -112,7 +111,6 @@ public class AftershockMod implements ModInitializer {
 					entries.accept(ModItems.SHOTGUN_SHELL);
 				}).build()); // build() no longer registers by itself
 		ModStructures.registerStructureFeatures();
-		AzureLib.initialize();
 		PacketHandler.registerMessages();
 	}
 
