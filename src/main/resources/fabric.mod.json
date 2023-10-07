@@ -23,6 +23,6 @@
     "java" : ">=17",
     "fabric-api" : "*",
     "smartbrainlib" : ">=1.11",
-    "azurelib" : ">=1.0.25"
+    "azurelib" : ">=1.0.32"
   }
 }
