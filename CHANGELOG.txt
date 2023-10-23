@@ -1,8 +1,6 @@
-v.0.0.6
+v.0.0.7
 
-- Updates required AzureLib version to v1.0.32.
-- Fixes early init crash with Connector.
-- Adds AzureLib to Connector builds required mods list, no longer bundled as you can use the Forge version safely with Fabric mods.
+- Fixes crash when loaded with connector and AzureLib Forge.
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.
