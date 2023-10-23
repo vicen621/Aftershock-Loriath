@@ -9,7 +9,9 @@ import mod.azure.aftershock.client.render.EightGaugeRender;
 import mod.azure.aftershock.common.AftershockMod;
 import mod.azure.aftershock.common.AftershockMod.ModItems;
 import mod.azure.aftershock.common.AftershockMod.ModSounds;
+import mod.azure.aftershock.common.blocks.TickingLightEntity;
 import mod.azure.aftershock.common.entities.projectiles.ShellEntity;
+import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.Keybindings;
 import mod.azure.azurelib.animatable.GeoItem;
 import mod.azure.azurelib.animatable.SingletonGeoAnimatable;
@@ -18,6 +20,7 @@ import mod.azure.azurelib.items.BaseGunItem;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,10 +35,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class EightGaugeItem extends BaseGunItem {
 
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+	private BlockPos lightBlockPos = null;
 
 	public EightGaugeItem() {
 		super(new Item.Properties().stacksTo(1).durability(2));
@@ -152,4 +158,46 @@ public class EightGaugeItem extends BaseGunItem {
 		return this.renderProvider;
 	}
 
+	@Override
+	protected void spawnLightSource(Entity entity, boolean isInWaterBlock) {
+		if (lightBlockPos == null) {
+			lightBlockPos = findFreeSpace(entity.level(), entity.blockPosition(), 2);
+			if (lightBlockPos == null)
+				return;
+			entity.level().setBlockAndUpdate(lightBlockPos, AftershockMod.ModBlocks.TICKING_LIGHT_BLOCK.defaultBlockState());
+		} else if (checkDistance(lightBlockPos, entity.blockPosition(), 2)) {
+			BlockEntity blockEntity = entity.level().getBlockEntity(lightBlockPos);
+			if (blockEntity instanceof TickingLightEntity) {
+				((TickingLightEntity) blockEntity).refresh(isInWaterBlock ? 20 : 0);
+			} else
+				lightBlockPos = null;
+		} else
+			lightBlockPos = null;
+	}
+
+	private boolean checkDistance(BlockPos blockPosA, BlockPos blockPosB, int distance) {
+		return Math.abs(blockPosA.getX() - blockPosB.getX()) <= distance && Math.abs(blockPosA.getY() - blockPosB.getY()) <= distance && Math.abs(blockPosA.getZ() - blockPosB.getZ()) <= distance;
+	}
+
+	private BlockPos findFreeSpace(Level world, BlockPos blockPos, int maxDistance) {
+		if (blockPos == null)
+			return null;
+
+		int[] offsets = new int[maxDistance * 2 + 1];
+		offsets[0] = 0;
+		for (int i = 2; i <= maxDistance * 2; i += 2) {
+			offsets[i - 1] = i / 2;
+			offsets[i] = -i / 2;
+		}
+		for (int x : offsets)
+			for (int y : offsets)
+				for (int z : offsets) {
+					BlockPos offsetPos = blockPos.offset(x, y, z);
+					BlockState state = world.getBlockState(offsetPos);
+					if (state.isAir() || state.getBlock().equals(AftershockMod.ModBlocks.TICKING_LIGHT_BLOCK))
+						return offsetPos;
+				}
+
+		return null;
+	}
 }
