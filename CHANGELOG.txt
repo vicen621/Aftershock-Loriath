@@ -1,6 +1,7 @@
-v.0.0.7
+v.0.0.8
 
-- Fixes crash when loaded with connector and AzureLib Forge.
+- Revert back to AzureLib LightBlock/Entity now that it's multiloader compatible.
+- Require at least AzureLib 2.0.3.
 
 Known WIP things left to do: 
 	- Graboids need extra hitboxes.
