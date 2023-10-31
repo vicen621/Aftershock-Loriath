@@ -20,6 +20,7 @@ import mod.azure.aftershock.common.structures.RedSandEggStructure;
 import mod.azure.aftershock.common.structures.SandEggStructure;
 import mod.azure.azurelib.AzureLibMod;
 import mod.azure.azurelib.config.format.ConfigFormats;
+import mod.azure.azurelib.entities.TickingLightBlock;
 import mod.azure.azurelib.items.AzureSpawnEgg;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -139,8 +140,6 @@ public class AftershockMod implements ModInitializer {
         public static final BlockEntityType<SeismographBlockEntity> SEIMOGRAPH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, AftershockMod.MODID + ":seismograph", FabricBlockEntityTypeBuilder.create(SeismographBlockEntity::new, ModBlocks.SEIMOGRAPH).build(null));
 
         public static EntityType<ShellEntity> SHELL = projectile(ShellEntity::new, "shell");
-        public static BlockEntityType<TickingLightEntity> TICKING_LIGHT_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, MODID + ":lightblock", FabricBlockEntityTypeBuilder.create(TickingLightEntity::new, ModBlocks.TICKING_LIGHT_BLOCK).build(null));
-
         private static <T extends Entity> EntityType<T> projectile(EntityType.EntityFactory<T> factory, String id) {
             EntityType<T> type = FabricEntityTypeBuilder.<T>create(MobCategory.MISC, factory).dimensions(new EntityDimensions(0.5F, 0.5F, true)).disableSummon().spawnableFarFromPlayer().trackRangeBlocks(90).trackedUpdateRate(1).build();
 
@@ -168,7 +167,6 @@ public class AftershockMod implements ModInitializer {
         public final static Block GRABOID_EGG = block(new GraboidEggBlock(), "graboid_egg");
         //		public final static Block TROPICAL_GRABOID_EGG = block(new TropicalGraboidEggBlock(), "tropical_graboid_egg");
         public final static Block SEIMOGRAPH = block(new SeismographBlock(), "seismograph");
-        public static final TickingLightBlock TICKING_LIGHT_BLOCK = block(new TickingLightBlock(), "lightblock");
 
         static <T extends Block> T block(T c, String id) {
             Registry.register(BuiltInRegistries.BLOCK, AftershockMod.modResource(id), c);
