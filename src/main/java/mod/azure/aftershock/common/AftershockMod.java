@@ -105,8 +105,8 @@ public class AftershockMod implements ModInitializer {
 //					entries.accept(ModItems.TROPICAL_GRABOID_SPAWNEGG);
 //					entries.accept(ModItems.TROPICAL_SHREIKER_SPAWNEGG);
 //					entries.accept(ModItems.TROPICAL_BLASTER_SPAWNEGG);
-                    entries.accept(ModItems.EIGHTGAUGE);
-                    entries.accept(ModItems.SHOTGUN_SHELL);
+//                  entries.accept(ModItems.EIGHTGAUGE);
+//                  entries.accept(ModItems.SHOTGUN_SHELL);
                 }).build()); // build() no longer registers by itself
         ModStructures.registerStructureFeatures();
         PacketHandler.registerMessages();
@@ -216,8 +216,8 @@ public class AftershockMod implements ModInitializer {
         public static SeismographBlockItem SEIMOGRAPH_ITEM = item(new SeismographBlockItem(), "seismograph");
         public static PortableSeismographItem PORTABLE_SEIMOGRAPH_ITEM = item(new PortableSeismographItem(), "portable_seismograph");
 
-        public static Item SHOTGUN_SHELL = item(new Item(new Item.Properties()), "shotgun_shell");
-        public static EightGaugeItem EIGHTGAUGE = item(new EightGaugeItem(), "eightgauge");
+        public static Item SHOTGUN_SHELL = new Item(new Item.Properties());
+        public static EightGaugeItem EIGHTGAUGE = new EightGaugeItem();
 
         static <T extends Item> T item(T c, String id) {
             Registry.register(BuiltInRegistries.ITEM, AftershockMod.modResource(id), c);
