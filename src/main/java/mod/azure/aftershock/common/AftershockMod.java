@@ -105,8 +105,8 @@ public class AftershockMod implements ModInitializer {
 //					entries.accept(ModItems.TROPICAL_GRABOID_SPAWNEGG);
 //					entries.accept(ModItems.TROPICAL_SHREIKER_SPAWNEGG);
 //					entries.accept(ModItems.TROPICAL_BLASTER_SPAWNEGG);
-                    entries.accept(ModItems.EIGHTGAUGE);
-                    entries.accept(ModItems.SHOTGUN_SHELL);
+//                  entries.accept(ModItems.EIGHTGAUGE);
+//                  entries.accept(ModItems.SHOTGUN_SHELL);
                 }).build()); // build() no longer registers by itself
         ModStructures.registerStructureFeatures();
         PacketHandler.registerMessages();
